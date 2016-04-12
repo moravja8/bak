@@ -35,17 +35,30 @@ class Main {
 /*  TODO udelat vyhodnocovac rozdeleni dotazu - CostsMapper a CostsEvaluater
     a) vyhodnocovat primo spustenim obou casti separe - nevyhoda: wf se musi spusti, jedna se o aposteriorni pristup
         - melo by jit dobre - knime na log level debug vypisuje cas behu jednotlivych nodu, zatim se mi to ale nepodarilo propsat do aplikace
+        - jiz funguje vypis casu pro beh jednotlivych nodu, ukladano do h2 db, zatim nijak neanalyzovano
     b) vyhodnocovat apriorne - otestovat rychlost hivu na dane operaci na x radcich, stejne tak knimu, potom odhadnout slozitost obou
        casti realneho wf (tohle bude hard) a nejak zkalkulovat
     c) vyhodnocovat apriorne pomoci explain, pokud hive a knime neco takoveho maji
         - hive explain je rule based, cost based explain je diskutovan napr na jire https://issues.apache.org/jira/browse/HIVE-1938 ,
         ale vypada to, ze se vyvoj zastavil
     ...
+    TODO pokud tabulka neexistuje, vytvorit
+    sql pro vytvoreni h2 tabulky
+    create table costs(
+	executedAt 	varchar2(22),
+	database_name 	varchar2(50),
+	table_name 	varchar2(50),
+	workflow_name	varchar2(100),
+	node_name		varchar2(50),
+	node_nbr		integer,
+	duration		integer
+)
+
 
     DONE v ramci testovani vyhodnocovace by bylo vhodne nahrat nejaka vhodna data do knimu
 */
 
-//  TODO udelat gui
+//  DONE udelat gui
 
 //  TODO dopsat javadoc
 
