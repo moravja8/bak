@@ -58,30 +58,4 @@ public class HiveConnector extends DbConnector{
     protected void setDb(String dbName) {
         callQuery("use "+dbName, false);
     }
-
-    @Deprecated // TODO: 4/11/16 smazat po pridani na git
-    private ArrayList<String> clearFromLogs(String input){
-        String[] lines = input.split(System.getProperty("line.separator"));
-        ArrayList<String> outputLines = new ArrayList<String>();
-        // clear input lines
-        for (String line : lines) {
-            if(line.length() >=4 && line.substring(0, 4).equals("WARN")){
-                log.info("Line "+ line + " filtered out.");
-                continue;
-            }else
-            if(line.length() >=4 && line.substring(0, 4).equals("INFO")){
-                log.info("Line "+ line + " filtered out.");
-                continue;
-            }else
-            if(line.length() >=5 && line.substring(0, 5).equals("DEBUG")){
-                log.info("Line "+ line + " filtered out.");
-                continue;
-            }else{
-                outputLines.add(line);
-            }
-        }
-        return outputLines;
-    }
-
-
 }

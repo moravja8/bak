@@ -43,30 +43,4 @@ public class ShellCommandsExecutorService {
             return null;
         }
     }
-
-    @Deprecated // TODO: 4/11/16 smazat po zalohovani na git
-    public String callProcess(String... command) {
-        StringBuilder assembleCommand = new StringBuilder();
-        for (String commandPart: command) {
-            assembleCommand.append(commandPart);
-            assembleCommand.append(" ");
-        }
-
-        log.info("Executing command: "+ assembleCommand.toString());
-
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.directory(new File(System.getProperty("user.home")));
-
-        Process process = null;
-        try {
-            process = processBuilder.start();
-        } catch (IOException e) {
-            log.error("An error occurred while creating process.", e);
-        }
-        String output = ServiceFactory.getFileSystemService().readInputStream(process.getInputStream());
-        String error = ServiceFactory.getFileSystemService().readInputStream(process.getErrorStream());
-        log.info("Proccess ended with message: "+ error);
-        return output;
-    }
-    
 }
