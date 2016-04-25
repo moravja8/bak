@@ -32,7 +32,7 @@ class Main {
     b) pokud by se pouzival konektor, muze byt na konektoru (y)
 */
 
-/*  TODO udelat vyhodnocovac rozdeleni dotazu - CostsMapper a CostsEvaluater
+/*  udelat vyhodnocovac rozdeleni dotazu - CostsMapper a CostsEvaluater
     a) vyhodnocovat primo spustenim obou casti separe - nevyhoda: wf se musi spusti, jedna se o aposteriorni pristup
         - melo by jit dobre - knime na log level debug vypisuje cas behu jednotlivych nodu, zatim se mi to ale nepodarilo propsat do aplikace
         - jiz funguje vypis casu pro beh jednotlivych nodu, ukladano do h2 db, zatim nijak neanalyzovano
@@ -65,12 +65,28 @@ class Main {
 //  TODO vytvorit junit testy
 
 /* TODO OpenPoint
-    - jakym zpusobem se bude zobrazovat vysledek vraceny spustenym wf?
-    - aplikace bude rikat jen jak je aktualni rozlozeni vykonne nebo bude i navrhovat upravu?
-    - bude do vyhodnocovani zahrnuta aktualni vytizenost hive serveru?
+    - jakym zpusobem se bude zobrazovat vysledek vraceny spustenym wf - bude ulozeny v souboru, na ktery bude vypsana cesta
+    - aplikace bude rikat jen jak je aktualni rozlozeni vykonne nebo bude i navrhovat upravu? - neni v rozsahu bp
+    - bude do vyhodnocovani zahrnuta aktualni vytizenost hive serveru? - neni v rozsahu bp
 */
 
+// TODO dok
+/**
+ * v exp casti psat spise o myslenkach, nedelat z toho programatorskou dokumentaci... popsat jak se napojuje na data, jak jsou ulozeny
+ *
+ * reseny problem versus reseni
+ */
 
+// TODO merger wf
+// muze doslova mergovat ruzna wf - je asi mozne, ale je nutne davat pozor na hromadu veci
+// muze jen spojovat metanody - asi lepsi, nutno otestovat
+// nebyl nalezen sw, ktery toto dela
+// - pri sestavovani wf z metanodu je potreba odmazat nody bez vstupni hrany
+// -
+
+// TODO sunchronizovat nastaveni Hive connectoru v aplikaci a v knihovne
+
+// OUTPUT - ulozeni vystupu nodu musi byt deklarovano explicitne nejakum writerem
 
 
 
