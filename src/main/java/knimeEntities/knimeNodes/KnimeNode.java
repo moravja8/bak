@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * Created by cloudera on 3/29/16.
@@ -23,19 +22,20 @@ public class KnimeNode {
     private Document xmlSettings = null;
     private String label = null;
     private HashMap<String, String> parameters = null;
+    private String nodeSettingsFileName = "settings.xml";
 
     /** Příznak udává, jestli se nastavení nodu změnilo od posledního uložení */
     private boolean changed = false;
 
     public KnimeNode(File root) throws IOException {
         nodeRoot = root;
-        loadSettings("settings.xml");
-
+        loadSettings();
     }
 
     public KnimeNode(File root, String settings) throws IOException{
         nodeRoot = root;
-        loadSettings(settings);
+        this.nodeSettingsFileName = settings;
+        loadSettings();
     }
 
     public KnimeNode(File root, String settings, Document parsedSettings) throws IOException {
@@ -43,10 +43,10 @@ public class KnimeNode {
         this.xmlSettings = parsedSettings;
     }
 
-    private void loadSettings(final String settings) throws IOException {
+    private void loadSettings() throws IOException {
         File[] settingFiles = nodeRoot.listFiles(new FileFilter() {
             public boolean accept(File pathname) {
-                if(pathname.getName().equals(settings)){
+                if(pathname.getName().equals(nodeSettingsFileName)){
                     return true;
                 }
                 return false;
@@ -68,10 +68,27 @@ public class KnimeNode {
         return xmlSettings;
     }
 
-    public void saveXmlSettings(){
+    public void save(){
         if(xmlSettings != null && changed){
             ServiceFactory.getKnimeNodeService().saveNode(this);
             setChanged(false);
+        }
+    }
+
+    public void restore(){
+        ServiceFactory.getKnimeNodeService().restoreNode(this);
+        setChanged(false);
+    }
+
+    public void reload(){
+        this.xmlSettings = null;
+        this.nodeSettings = null;
+        this.parameters = null;
+
+        try {
+            loadSettings();
+        } catch (IOException e) {
+            log.error("Node " + this + " could not be reloaded.", e);
         }
     }
 
@@ -88,7 +105,7 @@ public class KnimeNode {
     }
 
     /**
-     * @return složka, kde bude uložena záloha nodu
+     * @return složka, kde bude uložena záloha uzlu
      */
     public String getBackupFolderName(){
         String workflowBackupFolder = this.getNodeRoot().getParentFile().getAbsolutePath() + File.separator + "backup";
@@ -96,7 +113,7 @@ public class KnimeNode {
     }
 
     /**
-     * @return soubor se zálohou nodu
+     * @return soubor se zálohou uzlu
      */
     public File getBackupFile() {
         return new File (getBackupFolderName() + File.separator + this.getNodeSettings().getName());

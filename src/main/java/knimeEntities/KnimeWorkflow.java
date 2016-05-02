@@ -4,6 +4,7 @@ import knimeEntities.knimeNodes.KnimeHiveConnectorNode;
 import knimeEntities.knimeNodes.KnimeSqlExecutorNode;
 import knimeEntities.knimeNodes.KnimeNode;
 import knimeEntities.knimeNodes.KnimeWriterNode;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import performance.KnimeLogCostsMapper;
@@ -114,24 +115,60 @@ public class KnimeWorkflow extends KnimeNode{
     }
 
     /**
-     * Uloží všechny uzly workflow, jejichž nastavení se změnilo od posledního uložení.
-     * Uloží i své vlastní nastavení, pokud se změnilo.
+     * Uloží všechny uzly workflow, jejichž nastavení se změnilo od posledního uložení - včetně sebe sama.
      */
-    public void saveWorkflow(){
+    @Override
+    public void save(){
+        //smazání starých záloh
+        log.info("Deleting old backups in " + getBackupFolderName());
+        try {
+            FileUtils.deleteDirectory(new File(this.getBackupFolderName()));
+        } catch (IOException e) {
+            log.error("Folder " + getBackupFolderName() + " could not be deleted", e);
+        }
+
         //uložení uzlů
         for (KnimeNode node: nodes) {
             if(node.isChanged()){
-                node.saveXmlSettings();
+                node.save();
             }
         }
         //uložení sebe sama
         if(super.isChanged()){
-            this.saveXmlSettings();
+            super.save();
         }
     }
 
     /**
-     * @return složka, kde bude uložena záloha nodu
+     * Obnoví zálohu nastavení všech uzlů, které jsou zálohovány - včetně sebe sama.
+     */
+    @Override
+    public void restore(){
+        //obnovení uzlů
+        for (KnimeNode node: nodes) {
+            node.restore();
+        }
+
+        //obnovení sebe sama
+        super.restore();
+    }
+
+    /**
+     * Přenačte nastavení všech uzlů - včetně sebe sama.
+     */
+    @Override
+    public void reload(){
+        //znovunačtení uzlů
+        for (KnimeNode node: nodes) {
+            node.reload();
+        }
+
+        //obnovení sebe sama
+        super.reload();
+    }
+
+    /**
+     * @return složka, kde bude uložena záloha uzlu
      */
     @Override
     public String getBackupFolderName() {

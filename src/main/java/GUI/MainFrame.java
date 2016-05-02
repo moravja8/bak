@@ -126,9 +126,35 @@ public class MainFrame {
                 }
             });
 
+            //restore workflow button
+            JMenuItem restoreWorkflowMenuItem = new JMenuItem("Restore workflow");
+            restoreWorkflowMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    KnimeWorkflow workflow = (KnimeWorkflow) workflowsCombobox.getSelectedItem();
+                    workflow.restore();
+                    workflow.reload();
+
+                    customSqlTextarea.setText(workflow.getSqlExecutor().getSQLCode());
+                    customSqlTextarea.update(customSqlTextarea.getGraphics());
+                }
+            });
+
+            //reload workflow button
+            JMenuItem reloadWorkflowMenuItem = new JMenuItem("Restore workflow");
+            reloadWorkflowMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    KnimeWorkflow workflow = (KnimeWorkflow) workflowsCombobox.getSelectedItem();
+                    workflow.reload();
+                    customSqlTextarea.setText(workflow.getSqlExecutor().getSQLCode());
+                    customSqlTextarea.update(customSqlTextarea.getGraphics());
+                }
+            });
+
         //Přidání objektů do menu
         editMenu.add(editWorkflowMenuItem);
         editMenu.add(saveWorkflowMenuItem);
+        editMenu.add(restoreWorkflowMenuItem);
+        editMenu.add(reloadWorkflowMenuItem);
         menuBar.add(editMenu);
 
     }
@@ -290,7 +316,7 @@ public class MainFrame {
             }
 
             //uložení nastavených hodnot
-            knimeWorkflow.saveWorkflow();
+            knimeWorkflow.save();
 
         } catch (NullPointerException e) {
             String err = "An error ocured during loading of selected workflos: " + e.getMessage() + "\n";

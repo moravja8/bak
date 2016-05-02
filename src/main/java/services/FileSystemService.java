@@ -14,8 +14,7 @@ import java.io.InputStream;
 public class FileSystemService {
     private static Logger log = LoggerFactory.getLogger(FileSystemService.class);
 
-    protected FileSystemService() {
-    }
+    FileSystemService() {}
 
     public File createFolder(String folderAbsolutePath){
         File folder = new File(folderAbsolutePath);
@@ -56,21 +55,5 @@ public class FileSystemService {
             log.error("File " + sourceFile.getName() + " could not be moved to " + resultFile.getParentFile().getAbsolutePath(), e);
             throw new IOException();
         }
-    }
-
-
-
-    public String readInputStream(InputStream inputStream){
-        StringBuilder output = new StringBuilder();
-        try {
-            int content;
-            while ((content = inputStream.read()) != -1) {
-                output.append((char) content);
-            }
-        } catch (IOException e) {
-            log.error("Content could not been read.", e);
-        }
-
-        return output.toString();
     }
 }

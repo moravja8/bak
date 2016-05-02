@@ -107,12 +107,16 @@ public class KnimeNodeService {
         }
     }
 
-    private void restoreNode(KnimeNode node){
-        try {
-            ServiceFactory.getFileSystemService().moveFileSilently(node.getBackupFile(), node.getNodeSettings());
-            log.info("Node " + node.getNodeRoot().getName() + " was restored.");
-        } catch (IOException e) {
-            log.error("Node " + node.getNodeRoot().getName() + " could not be restored.", e);
+    public void restoreNode(KnimeNode node) {
+        if (node.getBackupFile().exists()){
+            try {
+                ServiceFactory.getFileSystemService().moveFileSilently(node.getBackupFile(), node.getNodeSettings());
+                log.info("Node " + node.getNodeRoot().getName() + " was restored.");
+            } catch (IOException e) {
+                log.error("Node " + node.getNodeRoot().getName() + " could not be restored.", e);
+            }
+        }else{
+            log.debug("There is no backup for node " + node.toString());
         }
     }
 
