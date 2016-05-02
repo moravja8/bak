@@ -4,10 +4,10 @@ import dbConnectors.DbConnector;
 import dbConnectors.HiveConnector;
 import knimeEntities.KnimeWorkflow;
 import knimeEntities.KnimeWorkflowManager;
-import knimeEntities.knimeNodes.KnimeNode;
 import knimeEntities.knimeNodes.KnimeWriterNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import services.ServiceFactory;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +22,9 @@ import java.util.ArrayList;
  */
 public class MainFrame {
     private Logger log = LoggerFactory.getLogger(MainFrame.class);
+
+    private JMenuBar menuBar;
+    private JMenu editMenu;
 
     private JPanel mainPanel;
     private JPanel leftBar;
@@ -42,7 +45,7 @@ public class MainFrame {
     private GridBagConstraints gridBagConstraints = new GridBagConstraints();
 
     public void init() {
-        JFrame frame = new JFrame("MainFrame");
+        JFrame frame = new JFrame("Analitic component");
 
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -51,11 +54,13 @@ public class MainFrame {
         frame.setResizable(false);
         frame.setVisible(true);
 
-
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayout(1,2));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-        frame.setContentPane(this.mainPanel);
+
+        initMenu();
+        frame.setContentPane(mainPanel);
+        frame.setJMenuBar(menuBar);
 
         leftBar = new JPanel();
         leftBar.setLayout(new GridBagLayout());
@@ -92,6 +97,40 @@ public class MainFrame {
         mainPanel.add(BorderLayout.EAST, leftBar);
         mainPanel.add(BorderLayout.WEST, rightBar);
         mainPanel.updateUI();
+    }
+
+    private void initMenu(){
+        //Menubar
+        menuBar = new JMenuBar();
+
+        //Edit menu
+        editMenu = new JMenu("Workflow");
+        editMenu.getAccessibleContext().setAccessibleDescription(
+                "Menu for editing the workflow.");
+
+            //Edit workflow button
+            JMenuItem editWorkflowMenuItem = new JMenuItem("Edit parameters");
+            editWorkflowMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    EditNodeParametersFrame editFrame =
+                            new EditNodeParametersFrame((KnimeWorkflow) workflowsCombobox.getSelectedItem());
+                    editFrame.init();
+                }
+            });
+
+            //Save workflow button
+            JMenuItem saveWorkflowMenuItem = new JMenuItem("Save workflow");
+            saveWorkflowMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    saveWorkflow();
+                }
+            });
+
+        //Přidání objektů do menu
+        editMenu.add(editWorkflowMenuItem);
+        editMenu.add(saveWorkflowMenuItem);
+        menuBar.add(editMenu);
+
     }
 
     private void saveWorkflowButtonInit() {
@@ -214,6 +253,8 @@ public class MainFrame {
                 outputTextarea.update(outputTextarea.getGraphics());
                 String costs = knimeWorkflow.runWorkflow((String) dbCombobox.getSelectedItem(), (String) tableCombobox.getSelectedItem());
                 outputTextarea.append("Workflow " + workflowsCombobox.getSelectedItem() + " executed successfully. \n");
+                outputTextarea.append("Exported results are to be found in folder "
+                        + ServiceFactory.getPropertiesLoaderService().getProperty("OutputFolder"));
                 outputTextarea.update(outputTextarea.getGraphics());
                 costsTextarea.append(costs);
                 costsTextarea.update(costsTextarea.getGraphics());

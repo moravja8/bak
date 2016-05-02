@@ -9,6 +9,8 @@ import services.ServiceFactory;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Created by cloudera on 3/29/16.
@@ -20,6 +22,7 @@ public class KnimeNode {
     private File nodeSettings = null;
     private Document xmlSettings = null;
     private String label = null;
+    private HashMap<String, String> parameters = null;
 
     /** Příznak udává, jestli se nastavení nodu změnilo od posledního uložení */
     private boolean changed = false;
@@ -113,6 +116,21 @@ public class KnimeNode {
 
     public File getNodeSettings() {
         return nodeSettings;
+    }
+
+    public HashMap<String, String> getParameters() {
+        if (parameters == null){
+            parameters = ServiceFactory.getKnimeNodeService().getAllParameters(this.getXmlSettings());
+        }
+        return parameters;
+    }
+
+    public void updateParametres(String key, String value){
+        this.getParameters().remove(key);
+        this.getParameters().put(key, value);
+
+        ServiceFactory.getKnimeNodeService().setParameterValue(this.getXmlSettings(), key, value);
+        setChanged(true);
     }
 
     @Override

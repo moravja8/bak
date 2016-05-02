@@ -1,10 +1,12 @@
 package services;
 
+import com.sun.org.apache.xpath.internal.NodeSet;
 import knimeEntities.knimeNodes.KnimeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -15,6 +17,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.*;
 import java.io.*;
+import java.util.HashMap;
 
 /**
  * Created by cloudera on 3/29/16.
@@ -132,12 +135,42 @@ public class KnimeNodeService {
     }
 
     public String getParameterValue(Document doc, String key){
-        Node entryNode = ServiceFactory.getKnimeNodeService().compileExecuteXpath(doc, "//entry[@key='"+key+"']");
+        Node entryNode = this.compileExecuteXpath(doc, "//entry[@key='"+key+"']");
         return entryNode.getAttributes().getNamedItem("value").getNodeValue();
     }
 
     public void setParameterValue(Document doc, String key, String value){
-        Node output = ServiceFactory.getKnimeNodeService().compileExecuteXpath(doc, "//entry[@key='"+key+"']");
+        Node output = this.compileExecuteXpath(doc, "//entry[@key='"+key+"']");
         output.getAttributes().getNamedItem("value").setNodeValue(value);
+    }
+
+    public HashMap<String, String> getAllParameters(Document doc){
+        NodeList nodeSet = new NodeSet();
+        HashMap<String, String> parameters = new HashMap<String, String>();
+
+        XPath xpath = xPathfactory.newXPath();
+        XPathExpression expr = null;
+        try {
+            expr = xpath.compile("//entry");
+        } catch (XPathExpressionException e) {
+            log.error("Could not compile given xpath.", e);
+        }
+
+        if (expr != null){
+            try {
+                nodeSet = (NodeList) expr.evaluate(doc, XPathConstants.NODESET);
+            } catch (XPathExpressionException e) {
+                log.error("Given xpath does not work for this document.", e);
+                return parameters;
+            }
+        }
+
+        for (int i = 0; i < nodeSet.getLength(); i++) {
+            Node node = nodeSet.item(i);
+            String key = node.getAttributes().getNamedItem("key").getNodeValue();
+            String value = node.getAttributes().getNamedItem("value").getNodeValue();
+            parameters.put(key, value);
+        }
+        return parameters;
     }
 }
