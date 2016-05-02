@@ -1,7 +1,7 @@
 package GUI;
 
-import knimeEntities.KnimeWorkflow;
-import knimeEntities.knimeNodes.KnimeNode;
+import model.KnimeWorkflowNode;
+import model.KnimeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,7 @@ import java.util.HashMap;
 class EditNodeParametersFrame {
     private static Logger log = LoggerFactory.getLogger(EditNodeParametersFrame.class);
 
-    private KnimeWorkflow workflow = null;
+    private KnimeWorkflowNode workflow = null;
 
     private JPanel mainPanel;
     private JComboBox nodeComboBox;
@@ -28,7 +28,7 @@ class EditNodeParametersFrame {
 
     private GridBagConstraints gridBagConstraints = new GridBagConstraints();
 
-    public EditNodeParametersFrame(KnimeWorkflow workflow) {
+    EditNodeParametersFrame(KnimeWorkflowNode workflow) {
         this.workflow = workflow;
     }
 

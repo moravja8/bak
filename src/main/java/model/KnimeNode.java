@@ -1,5 +1,6 @@
-package knimeEntities.knimeNodes;
+package model;
 
+import DAO.DaoFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -46,10 +47,7 @@ public class KnimeNode {
     private void loadSettings() throws IOException {
         File[] settingFiles = nodeRoot.listFiles(new FileFilter() {
             public boolean accept(File pathname) {
-                if(pathname.getName().equals(nodeSettingsFileName)){
-                    return true;
-                }
-                return false;
+                return pathname.getName().equals(nodeSettingsFileName);
             }
         });
 
@@ -62,7 +60,7 @@ public class KnimeNode {
 
     public Document getXmlSettings() {
         if(xmlSettings == null){
-            xmlSettings = ServiceFactory.getKnimeNodeService().buildDocumentFromXML(nodeSettings);
+            xmlSettings = DaoFactory.getKnimeNodeDao().createDOM(nodeSettings);
             setChanged(false);
         }
         return xmlSettings;
@@ -70,13 +68,13 @@ public class KnimeNode {
 
     public void save(){
         if(xmlSettings != null && changed){
-            ServiceFactory.getKnimeNodeService().saveNode(this);
+            DaoFactory.getKnimeNodeDao().update(this);
             setChanged(false);
         }
     }
 
     public void restore(){
-        ServiceFactory.getKnimeNodeService().restoreNode(this);
+        ServiceFactory.getKnimeNodeService().restore(this);
         setChanged(false);
     }
 
@@ -94,7 +92,7 @@ public class KnimeNode {
 
     public String getLabel(){
         if(label == null){
-            Node labelNode = ServiceFactory.getKnimeNodeService().compileExecuteXpath(this.getXmlSettings(), "//entry[@key='text']");
+            Node labelNode = DaoFactory.getKnimeNodeDao().readParameter(this.getXmlSettings(), "//entry[@key='text']");
             try {
                 label = labelNode.getAttributes().getNamedItem("value").getNodeValue();
             } catch (NullPointerException e) {
@@ -119,11 +117,11 @@ public class KnimeNode {
         return new File (getBackupFolderName() + File.separator + this.getNodeSettings().getName());
     }
 
-    public void setChanged(boolean changed) {
+    void setChanged(boolean changed) {
         this.changed = changed;
     }
 
-    public boolean isChanged() {
+    boolean isChanged() {
         return changed;
     }
 
@@ -137,7 +135,7 @@ public class KnimeNode {
 
     public HashMap<String, String> getParameters() {
         if (parameters == null){
-            parameters = ServiceFactory.getKnimeNodeService().getAllParameters(this.getXmlSettings());
+            parameters = DaoFactory.getKnimeNodeDao().readParameters(this.getXmlSettings());
         }
         return parameters;
     }

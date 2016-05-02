@@ -1,6 +1,6 @@
-package services;
+package DAO.Impl;
 
-import knimeEntities.KnimeWorkflowManager;
+import DAO.PropertiesDao;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,14 +10,11 @@ import java.util.Properties;
 /**
  * Created by cloudera on 3/28/16.
  */
-public class PropertiesLoaderService {
-
-    protected  PropertiesLoaderService() {
-    }
+public class PropertiesDaoImpl implements PropertiesDao{
 
     private Properties prop = null;
 
-    public void loadProperties(){
+    private void loadProperties(){
 
         InputStream input = null;
         prop = new Properties();

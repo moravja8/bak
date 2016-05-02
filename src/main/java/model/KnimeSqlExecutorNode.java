@@ -1,4 +1,4 @@
-package knimeEntities.knimeNodes;
+package model;
 
 import services.ServiceFactory;
 

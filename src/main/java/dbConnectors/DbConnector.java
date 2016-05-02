@@ -12,25 +12,23 @@ import java.sql.*;
  */
 public abstract class DbConnector {
     private Logger log = LoggerFactory.getLogger(DbConnector.class);
-    protected String dbServer = null;
-    protected String currentDatabase = null;
-    protected String driverName = null;
-    protected Connection connection = null;
-    protected Statement statement = null;
-    protected ResultSet resultSet = null;
-    protected String dbUser = null;
-    protected String dbPassword = null;
+    String dbServer = null;
+    String currentDatabase = null;
+    String driverName = null;
+    private Statement statement = null;
+    String dbUser = null;
+    String dbPassword = null;
 
     public abstract ResultSet getDatabases();
     public abstract ResultSet getTables();
     public abstract String getBasicSelectSQL(String tableName);
     protected abstract void setDb(String dbName);
 
-    public ResultSet callQuery(String sql, boolean expectResult) {
+    ResultSet callQuery(String sql, boolean expectResult) {
         log.info("Running query '"+sql+"'");
         try {
             if(expectResult){
-                resultSet = statement.executeQuery(sql);
+                ResultSet resultSet = statement.executeQuery(sql);
                 log.info("Fetched result has " + resultSet.getMetaData().getColumnCount() + " columns and " );
                 return resultSet;
             }else{
@@ -58,9 +56,6 @@ public abstract class DbConnector {
 
 
     public String getCurrentDatabase() {
-        if(currentDatabase == null){
-            // TODO: 4/10/16 find current database
-        }
         return currentDatabase;
     }
 
@@ -69,7 +64,7 @@ public abstract class DbConnector {
         setDb(currentDatabase);
     }
 
-    public void connect() {
+    void connect() {
         String conn = dbServer + File.separator + getCurrentDatabase();
         try {
             Class.forName(driverName);
@@ -77,7 +72,7 @@ public abstract class DbConnector {
             log.error("Could not find driver class " + driverName, e);
         }
         try {
-            connection = DriverManager.getConnection( conn, dbUser, dbPassword);
+            Connection connection = DriverManager.getConnection(conn, dbUser, dbPassword);
             statement = connection.createStatement();
         } catch (SQLException e) {
             log.error("Could not create connection to database server " + conn, e);

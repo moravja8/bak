@@ -1,5 +1,6 @@
-package knimeEntities.knimeNodes;
+package model;
 
+import DAO.DaoFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.ServiceFactory;
@@ -25,7 +26,7 @@ public class KnimeWriterNode extends KnimeNode {
         if(outputFile == null){
             String[] labelParts = super.getLabel().split("_");
             if(labelParts.length == 2){
-                return ServiceFactory.getPropertiesLoaderService().getProperty("OutputFolder") +
+                return DaoFactory.getPropertiesDao().getProperty("OutputFolder") +
                         File.separator + labelParts[1];
             }else{
                 log.error("Label of export node is not in correct format. " +

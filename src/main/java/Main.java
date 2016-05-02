@@ -1,14 +1,10 @@
 import GUI.MainFrame;
+import Utils.KnimeLogSetupUtil;
 import dbConnectors.H2Connector;
-import knimeEntities.KnimeWorkflow;
-import knimeEntities.KnimeWorkflowManager;
-import org.apache.commons.logging.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import services.ServiceFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 
 class Main {
@@ -17,15 +13,12 @@ class Main {
     public static void main(String[] args) {
         H2Connector.getInstance();
         try {
-            ServiceFactory.getKnimeLogSettingsService().addBatchExecutorLoggerToRoot();
+            KnimeLogSetupUtil.addBatchExecutorLogger();
         } catch (IOException e) {
             log.error("Could not load log settings of Knime", e);
         }
         MainFrame mf = new MainFrame();
         mf.init();
-        //KnimeWorkflow workflow = KnimeWorkflowManager.getInstance().getWorkflows().get(0);
-        //workflow.getNodes();
-
     }
 }
 

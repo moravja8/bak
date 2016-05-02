@@ -1,14 +1,7 @@
 package dbConnectors;
 
-import org.apache.hive.jdbc.HiveDriver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import services.ServiceFactory;
-
-import java.sql.DriverManager;
+import DAO.DaoFactory;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 
 /**
  * Singleton, not thread safe
@@ -18,14 +11,12 @@ public class HiveConnector extends DbConnector{
 
     private static DbConnector instance;
 
-    private Logger log = LoggerFactory.getLogger(HiveConnector.class);
-
     private HiveConnector() {
-        super.driverName = ServiceFactory.getPropertiesLoaderService().getProperty("HiveDriver");
-        super.currentDatabase = ServiceFactory.getPropertiesLoaderService().getProperty("HiveDefaultDatabase");
-        super.dbUser = ServiceFactory.getPropertiesLoaderService().getProperty("HiveUser");
-        super.dbPassword = ServiceFactory.getPropertiesLoaderService().getProperty("HivePassword");
-        super.dbServer = ServiceFactory.getPropertiesLoaderService().getProperty("HiveServer");
+        super.driverName = DaoFactory.getPropertiesDao().getProperty("HiveDriver");
+        super.currentDatabase = DaoFactory.getPropertiesDao().getProperty("HiveDefaultDatabase");
+        super.dbUser = DaoFactory.getPropertiesDao().getProperty("HiveUser");
+        super.dbPassword = DaoFactory.getPropertiesDao().getProperty("HivePassword");
+        super.dbServer = DaoFactory.getPropertiesDao().getProperty("HiveServer");
 
         connect();
     }

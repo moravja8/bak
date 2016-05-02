@@ -1,5 +1,6 @@
-package knimeEntities.knimeNodes;
+package model;
 
+import DAO.DaoFactory;
 import services.ServiceFactory;
 
 import java.io.File;
@@ -31,11 +32,11 @@ public class KnimeHiveConnectorNode extends KnimeNode {
     public void refreshSettings() {
         loadSettings();
 
-        String appDriver = ServiceFactory.getPropertiesLoaderService().getProperty("HiveDriver");
-        String appDefaultDatabase = ServiceFactory.getPropertiesLoaderService().getProperty("HiveDefaultDatabase");
-        String appUser = ServiceFactory.getPropertiesLoaderService().getProperty("HiveDriver");
-        String appPassword = ServiceFactory.getPropertiesLoaderService().getProperty("HivePassword");
-        String appDatabase = ServiceFactory.getPropertiesLoaderService().getProperty("HiveServer") + "/" + appDefaultDatabase;
+        String appDriver = DaoFactory.getPropertiesDao().getProperty("HiveDriver");
+        String appDefaultDatabase = DaoFactory.getPropertiesDao().getProperty("HiveDefaultDatabase");
+        String appUser = DaoFactory.getPropertiesDao().getProperty("HiveDriver");
+        String appPassword = DaoFactory.getPropertiesDao().getProperty("HivePassword");
+        String appDatabase = DaoFactory.getPropertiesDao().getProperty("HiveServer") + "/" + appDefaultDatabase;
 
         if(!driver.equals(appDriver)){
             setDriver(appDriver);
@@ -59,35 +60,35 @@ public class KnimeHiveConnectorNode extends KnimeNode {
     }
 
 
-    public void setDatabase(String database) {
+    private void setDatabase(String database) {
         ServiceFactory.getKnimeNodeService().setParameterValue(super.getXmlSettings(), "database", database);
     }
 
-    public void setUser(String user) {
+    private void setUser(String user) {
         ServiceFactory.getKnimeNodeService().setParameterValue(super.getXmlSettings(), "user", user);
     }
 
-    public void setPassword(String password) {
+    private void setPassword(String password) {
         ServiceFactory.getKnimeNodeService().setParameterValue(super.getXmlSettings(), "password", password);
     }
 
-    public void setDriver(String driver) {
+    private void setDriver(String driver) {
         ServiceFactory.getKnimeNodeService().setParameterValue(super.getXmlSettings(), "driver", driver);
     }
 
-    public String getDatabase() {
+    private String getDatabase() {
         return ServiceFactory.getKnimeNodeService().getParameterValue(super.getXmlSettings(), "database");
     }
 
-    public String getPassword() {
+    private String getPassword() {
         return ServiceFactory.getKnimeNodeService().getParameterValue(super.getXmlSettings(), "password");
     }
 
-    public String getDriver() {
+    private String getDriver() {
         return ServiceFactory.getKnimeNodeService().getParameterValue(super.getXmlSettings(), "driver");
     }
 
-    public String getUser() {
+    private String getUser() {
         return ServiceFactory.getKnimeNodeService().getParameterValue(super.getXmlSettings(), "user");
     }
 }

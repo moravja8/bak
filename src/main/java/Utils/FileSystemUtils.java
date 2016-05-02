@@ -1,22 +1,17 @@
-package services;
+package Utils;
 
-import knimeEntities.KnimeWorkflowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Created by cloudera on 4/6/16.
  */
-public class FileSystemService {
-    private static Logger log = LoggerFactory.getLogger(FileSystemService.class);
+public class FileSystemUtils {
+    private static Logger log = LoggerFactory.getLogger(FileSystemUtils.class);
 
-    FileSystemService() {}
-
-    public File createFolder(String folderAbsolutePath){
+    public static File createFolder(String folderAbsolutePath){
         File folder = new File(folderAbsolutePath);
 
         //pokud neexistuje parent složka, rekurzivně se vytvoří
@@ -43,7 +38,7 @@ public class FileSystemService {
         return folder;
     }
 
-    public void moveFileSilently(File sourceFile, File resultFile) throws IOException {
+    public static void moveFileSilently(File sourceFile, File resultFile) throws IOException {
         try{
             if(sourceFile.renameTo(resultFile)){
                 resultFile.createNewFile();

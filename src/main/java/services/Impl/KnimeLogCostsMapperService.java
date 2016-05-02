@@ -1,8 +1,9 @@
-package performance;
+package services.Impl;
 
 import dbConnectors.H2Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import services.KnimeCostsMapperService;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,21 +12,12 @@ import java.util.Date;
 /**
  * Created by cloudera on 4/11/16.
  */
-public class KnimeLogCostsMapper implements CostsMapper{
-    private static Logger log = LoggerFactory.getLogger(KnimeLogCostsMapper.class);
-    private ArrayList<String> inputLog = null;
-    private String db;
-    private String table;
-    private String wf;
+public class KnimeLogCostsMapperService implements KnimeCostsMapperService {
+    private static Logger log = LoggerFactory.getLogger(KnimeLogCostsMapperService.class);
 
-    public KnimeLogCostsMapper(ArrayList<String> inputLog, String db, String table, String wf) {
-        this.inputLog = inputLog;
-        this.db = db;
-        this.table = table;
-        this.wf = wf;
-    }
+    public KnimeLogCostsMapperService() {}
 
-    public String mapCostsFromLog(){
+    public String mapCostsFromLog(ArrayList<String> inputLog, String db, String table, String wf){
         ArrayList<String> filteredLog = filterIputLog(inputLog);
         ArrayList<String[]> costMap = createCostMap(filteredLog, db, table, wf);
 
@@ -33,7 +25,7 @@ public class KnimeLogCostsMapper implements CostsMapper{
         for (String[] line: costMap) {
             String sql = "insert into costs values('" + line[0]+"','"+line[1]+"','"+line[2]+"','"+ line[3]+"','"+line[4]+"',"+line[5]+","+line[6]+")";
             H2Connector.getInstance().execute(sql);
-            costsSb.append("Duration of execution of node " + line[4] + " was " + line[6] + " secs \n");
+            costsSb.append("Duration of execution of node ").append(line[4]).append(" was ").append(line[6]).append(" secs \n");
         }
         String costs = costsSb.toString();
         log.info("The costs for last workflow execution are: \n" + costs);
@@ -41,7 +33,7 @@ public class KnimeLogCostsMapper implements CostsMapper{
         return costs;
     }
 
-    private ArrayList<String[]> createCostMap(ArrayList<String> filteredLog, String db, String table, String wf) {
+    public ArrayList<String[]> createCostMap(ArrayList<String> filteredLog, String db, String table, String wf) {
         ArrayList<String[]> costmap = new ArrayList<String[]>();
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
         Date now = new Date();

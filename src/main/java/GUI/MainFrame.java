@@ -1,10 +1,10 @@
 package GUI;
 
+import DAO.DaoFactory;
 import dbConnectors.DbConnector;
 import dbConnectors.HiveConnector;
-import knimeEntities.KnimeWorkflow;
-import knimeEntities.KnimeWorkflowManager;
-import knimeEntities.knimeNodes.KnimeWriterNode;
+import model.KnimeWorkflowNode;
+import model.KnimeWriterNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.ServiceFactory;
@@ -108,17 +108,17 @@ public class MainFrame {
         editMenu.getAccessibleContext().setAccessibleDescription(
                 "Menu for editing the workflow.");
 
-            //Edit workflow button
+            //Edit workflow tlačítko
             JMenuItem editWorkflowMenuItem = new JMenuItem("Edit parameters");
             editWorkflowMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     EditNodeParametersFrame editFrame =
-                            new EditNodeParametersFrame((KnimeWorkflow) workflowsCombobox.getSelectedItem());
+                            new EditNodeParametersFrame((KnimeWorkflowNode) workflowsCombobox.getSelectedItem());
                     editFrame.init();
                 }
             });
 
-            //Save workflow button
+            //Save workflow tlačítko
             JMenuItem saveWorkflowMenuItem = new JMenuItem("Save workflow");
             saveWorkflowMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -126,11 +126,11 @@ public class MainFrame {
                 }
             });
 
-            //restore workflow button
+            //restore workflow tlačítko
             JMenuItem restoreWorkflowMenuItem = new JMenuItem("Restore workflow");
             restoreWorkflowMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    KnimeWorkflow workflow = (KnimeWorkflow) workflowsCombobox.getSelectedItem();
+                    KnimeWorkflowNode workflow = (KnimeWorkflowNode) workflowsCombobox.getSelectedItem();
                     workflow.restore();
                     workflow.reload();
 
@@ -139,11 +139,11 @@ public class MainFrame {
                 }
             });
 
-            //reload workflow button
-            JMenuItem reloadWorkflowMenuItem = new JMenuItem("Restore workflow");
+            //reload workflow tlačítko
+            JMenuItem reloadWorkflowMenuItem = new JMenuItem("Reload workflow");
             reloadWorkflowMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    KnimeWorkflow workflow = (KnimeWorkflow) workflowsCombobox.getSelectedItem();
+                    KnimeWorkflowNode workflow = (KnimeWorkflowNode) workflowsCombobox.getSelectedItem();
                     workflow.reload();
                     customSqlTextarea.setText(workflow.getSqlExecutor().getSQLCode());
                     customSqlTextarea.update(customSqlTextarea.getGraphics());
@@ -252,8 +252,8 @@ public class MainFrame {
     private void workflowsInit(){
         workflowsCombobox = initCombobox(workflowsCombobox);
 
-        ArrayList<KnimeWorkflow> workflows = KnimeWorkflowManager.getInstance().getWorkflows();
-        for (KnimeWorkflow workflow : workflows) {
+        ArrayList<KnimeWorkflowNode> workFlows = ServiceFactory.getKnimeWorkflowService().getWorkflows();
+        for (KnimeWorkflowNode workflow : workFlows) {
             workflowsCombobox.addItem(workflow);
         }
 
@@ -273,14 +273,17 @@ public class MainFrame {
             public void actionPerformed(ActionEvent e) {
                 outputTextareaRefresh();
                 costsTextareaRefresh();
-                KnimeWorkflow knimeWorkflow = (KnimeWorkflow) workflowsCombobox.getSelectedItem();
+                KnimeWorkflowNode knimeWorkflow = (KnimeWorkflowNode) workflowsCombobox.getSelectedItem();
                 saveWorkflow();
                 outputTextarea.append("Executing workflow " + workflowsCombobox.getSelectedItem() + " ... \n");
                 outputTextarea.update(outputTextarea.getGraphics());
-                String costs = knimeWorkflow.runWorkflow((String) dbCombobox.getSelectedItem(), (String) tableCombobox.getSelectedItem());
+                String costs = ServiceFactory.getKnimeWorkflowService().runWorkflow(knimeWorkflow,
+                        (String) dbCombobox.getSelectedItem(), (String) tableCombobox.getSelectedItem());
+
                 outputTextarea.append("Workflow " + workflowsCombobox.getSelectedItem() + " executed successfully. \n");
                 outputTextarea.append("Exported results are to be found in folder "
-                        + ServiceFactory.getPropertiesLoaderService().getProperty("OutputFolder"));
+                        + DaoFactory.getPropertiesDao().getProperty("OutputFolder"));
+
                 outputTextarea.update(outputTextarea.getGraphics());
                 costsTextarea.append(costs);
                 costsTextarea.update(costsTextarea.getGraphics());
@@ -296,7 +299,7 @@ public class MainFrame {
 
     private void saveWorkflow(){
         String tableName = (String) tableCombobox.getSelectedItem();
-        KnimeWorkflow knimeWorkflow = (KnimeWorkflow) workflowsCombobox.getSelectedItem();
+        KnimeWorkflowNode knimeWorkflow = (KnimeWorkflowNode) workflowsCombobox.getSelectedItem();
         try {
 
             //nastavení změněných hodnot
