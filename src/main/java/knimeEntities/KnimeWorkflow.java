@@ -147,4 +147,8 @@ public class KnimeWorkflow extends KnimeNode{
     public KnimeHiveConnectorNode getHiveConnector() {
         return hiveConnector;
     }
+
+    public ArrayList<KnimeWriterNode> getWriters() {
+        return writers;
+    }
 }

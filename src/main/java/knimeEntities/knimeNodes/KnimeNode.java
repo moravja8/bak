@@ -60,6 +60,7 @@ public class KnimeNode {
     public Document getXmlSettings() {
         if(xmlSettings == null){
             xmlSettings = ServiceFactory.getKnimeNodeService().buildDocumentFromXML(nodeSettings);
+            setChanged(false);
         }
         return xmlSettings;
     }
@@ -67,6 +68,7 @@ public class KnimeNode {
     public void saveXmlSettings(){
         if(xmlSettings != null && changed){
             ServiceFactory.getKnimeNodeService().saveNode(this);
+            setChanged(false);
         }
     }
 

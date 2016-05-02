@@ -4,6 +4,8 @@ import dbConnectors.DbConnector;
 import dbConnectors.HiveConnector;
 import knimeEntities.KnimeWorkflow;
 import knimeEntities.KnimeWorkflowManager;
+import knimeEntities.knimeNodes.KnimeNode;
+import knimeEntities.knimeNodes.KnimeWriterNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -240,6 +242,11 @@ public class MainFrame {
 
             //nastavení Hive konektoru
             knimeWorkflow.getHiveConnector().refreshSettings();
+
+            //nastavení output složky
+            for (KnimeWriterNode writer : knimeWorkflow.getWriters()) {
+                writer.refreshSettigs();
+            }
 
             //uložení nastavených hodnot
             knimeWorkflow.saveWorkflow();

@@ -29,7 +29,7 @@ public class KnimeHiveConnectorNode extends KnimeNode {
 
 
     public void refreshSettings() {
-        loadSettings(); //TODO mohlo by být nějak rozumně omezeno
+        loadSettings();
 
         String appDriver = ServiceFactory.getPropertiesLoaderService().getProperty("HiveDriver");
         String appDefaultDatabase = ServiceFactory.getPropertiesLoaderService().getProperty("HiveDefaultDatabase");
