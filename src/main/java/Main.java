@@ -1,14 +1,30 @@
 import GUI.MainFrame;
 import dbConnectors.H2Connector;
+import knimeEntities.KnimeWorkflow;
+import knimeEntities.KnimeWorkflowManager;
+import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.ServiceFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 
 class Main {
+    private static Logger log = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) {
         H2Connector.getInstance();
-        ServiceFactory.getKnimeLogSettingsService().addBatchExecutorLoggerToRoot();
+        try {
+            ServiceFactory.getKnimeLogSettingsService().addBatchExecutorLoggerToRoot();
+        } catch (IOException e) {
+            log.error("Could not load log settings of Knime", e);
+        }
         MainFrame mf = new MainFrame();
         mf.init();
+        //KnimeWorkflow workflow = KnimeWorkflowManager.getInstance().getWorkflows().get(0);
+        //workflow.getNodes();
 
     }
 }
@@ -85,6 +101,8 @@ class Main {
 // -
 
 // TODO sunchronizovat nastaveni Hive connectoru v aplikaci a v knihovne
+
+// TODO jednotna zmena ciloveho adresare
 
 // OUTPUT - ulozeni vystupu nodu musi byt deklarovano explicitne nejakum writerem
 

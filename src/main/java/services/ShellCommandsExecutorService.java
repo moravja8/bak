@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 public class ShellCommandsExecutorService {
 
-    Logger log = LoggerFactory.getLogger(ShellCommandsExecutorService.class);
+    private static Logger log = LoggerFactory.getLogger(ShellCommandsExecutorService.class);
 
     protected ShellCommandsExecutorService() {
     }

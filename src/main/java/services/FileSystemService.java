@@ -1,5 +1,6 @@
 package services;
 
+import knimeEntities.KnimeWorkflowManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.File;
@@ -11,14 +12,20 @@ import java.io.InputStream;
  * Created by cloudera on 4/6/16.
  */
 public class FileSystemService {
-    private Logger log = LoggerFactory.getLogger(FileSystemService.class);
+    private static Logger log = LoggerFactory.getLogger(FileSystemService.class);
 
     protected FileSystemService() {
     }
 
     public File createFolder(String folderAbsolutePath){
         File folder = new File(folderAbsolutePath);
-        //try 5 times
+
+        //pokud neexistuje parent složka, rekurzivně se vytvoří
+        if(!folder.getParentFile().exists()){
+            createFolder(folder.getParentFile().getAbsolutePath());
+        }
+
+        //pokusí se 5krát vytvořit složku
         for (int archiveId = 1; archiveId <= 5; archiveId++) {
             if(!folder.exists()){
                 folder.mkdir();
@@ -27,7 +34,8 @@ public class FileSystemService {
                 folder = new File (folderAbsolutePath + archiveId);
             }
         }
-        //if failed then return null
+
+        //pokud i tak selže, vrátí null
         if(!(folder.exists() && folder.isDirectory())){
             log.error("Archiv folder could not be created, function returns null");
             return null;
@@ -39,23 +47,18 @@ public class FileSystemService {
     public void moveFileSilently(File sourceFile, File resultFile) throws IOException {
         try{
             if(sourceFile.renameTo(resultFile)){
+                resultFile.createNewFile();
                 log.info("File " + sourceFile.getName() + " was moved to " + resultFile.getParentFile().getAbsolutePath());
             }else{
                 throw new IOException();
             }
         }catch(IOException e){
-            log.error("File " + sourceFile.getName() + " could not be moved to " + resultFile.getParentFile().getAbsolutePath());
+            log.error("File " + sourceFile.getName() + " could not be moved to " + resultFile.getParentFile().getAbsolutePath(), e);
             throw new IOException();
         }
     }
 
-    public String getBackupFolderName(File file){
-        return file.getParentFile().getAbsolutePath() + File.separator + "backup";
-    }
 
-    public File getBackupFile(File file) {
-        return new File (getBackupFolderName(file) + File.separator + file.getName());
-    }
 
     public String readInputStream(InputStream inputStream){
         StringBuilder output = new StringBuilder();

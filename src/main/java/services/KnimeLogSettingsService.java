@@ -1,6 +1,7 @@
 package services;
 
 import knimeEntities.KnimeWorkflowManager;
+import knimeEntities.knimeNodes.KnimeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -8,6 +9,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by moravja8 on 4/11/16.
@@ -22,7 +24,7 @@ import java.io.File;
  */
 public class KnimeLogSettingsService {
     private File knimeLogSettingsFile = null;
-    private Logger log = LoggerFactory.getLogger(KnimeLogSettingsService.class);
+    private static Logger log = LoggerFactory.getLogger(KnimeLogSettingsService.class);
     private Document parsedSettings = null;
 
     /**
@@ -50,12 +52,12 @@ public class KnimeLogSettingsService {
     /**
      * Adds node appender-ref[@ref='batchexec'] to root node, backups old settings and saves new settings.
      */
-    public void addBatchExecutorLoggerToRoot(){
-        parsedSettings = ServiceFactory.getXmlXpathService().buildDocument(knimeLogSettingsFile);
+    public void addBatchExecutorLoggerToRoot() throws IOException {
+        parsedSettings = ServiceFactory.getKnimeNodeService().buildDocumentFromXML(knimeLogSettingsFile);
 
-        Node root = ServiceFactory.getXmlXpathService().compileExecuteXpath(parsedSettings, "//root");
+        Node root = ServiceFactory.getKnimeNodeService().compileExecuteXpath(parsedSettings, "//root");
 
-        Node batchExecutorLogger = ServiceFactory.getXmlXpathService().compileExecuteXpath(parsedSettings, "//root/appender-ref[@ref='batchexec']");
+        Node batchExecutorLogger = ServiceFactory.getKnimeNodeService().compileExecuteXpath(parsedSettings, "//root/appender-ref[@ref='batchexec']");
 
         if(batchExecutorLogger == null) { // batchExecutorLogger is not set yet to root
             batchExecutorLogger = parsedSettings.createElement("appender-ref");
@@ -64,7 +66,7 @@ public class KnimeLogSettingsService {
             batchExecutorLogger.getAttributes().setNamedItem(attr);
             root.appendChild(batchExecutorLogger);
 
-            ServiceFactory.getXmlXpathService().saveDocument(knimeLogSettingsFile, parsedSettings);
+            ServiceFactory.getKnimeNodeService().saveNode(new KnimeNode(knimeLogSettingsFile.getParentFile(), "log4j3.xml", parsedSettings));
         }
     }
 

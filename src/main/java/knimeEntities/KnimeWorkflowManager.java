@@ -1,9 +1,12 @@
 package knimeEntities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.ServiceFactory;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -12,6 +15,7 @@ import java.util.ArrayList;
  * Created by cloudera on 3/28/16.
  */
 public class KnimeWorkflowManager {
+    private static Logger log = LoggerFactory.getLogger(KnimeWorkflowManager.class);
 
     private static KnimeWorkflowManager instance = null;
     private File knimeWorkingFolder = null;
@@ -46,11 +50,15 @@ public class KnimeWorkflowManager {
         return null;
     }
 
-    public ArrayList<KnimeWorkflow> loadWorkflows(){
+    private ArrayList<KnimeWorkflow> loadWorkflows(){
         workflows = new ArrayList<KnimeWorkflow>();
         File[] roots = findWorkflows();
         for (File root: roots) {
-            workflows.add(new KnimeWorkflow(root));
+            try {
+                workflows.add(new KnimeWorkflow(root));
+            } catch (IOException e) {
+                log.error("Workflow "+ root.getName() + " could not be loaded.", e);
+            }
         }
 
         return workflows;

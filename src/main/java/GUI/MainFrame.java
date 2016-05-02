@@ -209,9 +209,12 @@ public class MainFrame {
                 KnimeWorkflow knimeWorkflow = (KnimeWorkflow) workflowsCombobox.getSelectedItem();
                 saveWorkflow();
                 outputTextarea.append("Executing workflow " + workflowsCombobox.getSelectedItem() + " ... \n");
+                outputTextarea.update(outputTextarea.getGraphics());
                 String costs = knimeWorkflow.runWorkflow((String) dbCombobox.getSelectedItem(), (String) tableCombobox.getSelectedItem());
                 outputTextarea.append("Workflow " + workflowsCombobox.getSelectedItem() + " executed successfully. \n");
+                outputTextarea.update(outputTextarea.getGraphics());
                 costsTextarea.append(costs);
+                costsTextarea.update(costsTextarea.getGraphics());
             }
         });
 
@@ -226,15 +229,26 @@ public class MainFrame {
         String tableName = (String) tableCombobox.getSelectedItem();
         KnimeWorkflow knimeWorkflow = (KnimeWorkflow) workflowsCombobox.getSelectedItem();
         try {
+
+            //nastavení změněných hodnot
             if(useCustomSqlCheckbox.isSelected()){
-                System.out.println(customSqlTextarea.getText());
-                knimeWorkflow.getDatabaseExecutor().setSQLCode(customSqlTextarea.getText());
+                knimeWorkflow.getSqlExecutor().setSQLCode(customSqlTextarea.getText());
+                log.info("Setting sql command to: " + customSqlTextarea.getText());
             }else{
-                knimeWorkflow.getDatabaseExecutor().setSQLCode(db.getBasicSelectSQL(tableName));
+                knimeWorkflow.getSqlExecutor().setSQLCode(db.getBasicSelectSQL(tableName));
             }
-        } catch (NullPointerException eN) {
-            outputTextarea.append("Selected workflow does not contain eny node of type 'Database Executor'. \n" +
-                    "The application will run the workflow unchanged. \n");
+
+            //nastavení Hive konektoru
+            knimeWorkflow.getHiveConnector().refreshSettings();
+
+            //uložení nastavených hodnot
+            knimeWorkflow.saveWorkflow();
+
+        } catch (NullPointerException e) {
+            String err = "An error ocured during loading of selected workflos: " + e.getMessage() + "\n";
+            outputTextarea.append(err);
+            outputTextarea.update(outputTextarea.getGraphics());
+            log.error(err, e);
         }
     }
 
@@ -279,6 +293,7 @@ public class MainFrame {
 
     private void outputTextareaRefresh() {
         outputTextarea.setText("");
+        outputTextarea.update(outputTextarea.getGraphics());
     }
 
     private void costsTextareaInit(){
@@ -293,6 +308,7 @@ public class MainFrame {
 
     private void costsTextareaRefresh() {
         costsTextarea.setText("");
+        costsTextarea.update(costsTextarea.getGraphics());
     }
 
     private void useCustomSqlCheckboxInit(){

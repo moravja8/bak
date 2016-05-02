@@ -1,5 +1,6 @@
 package services;
 
+import knimeEntities.knimeNodes.KnimeNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -18,9 +19,9 @@ import java.io.*;
 /**
  * Created by cloudera on 3/29/16.
  */
-public class XMLXpathService {
+public class KnimeNodeService {
 
-    private Logger log = LoggerFactory.getLogger(XMLXpathService.class);
+    private static Logger log = LoggerFactory.getLogger(KnimeNodeService.class);
 
     private DocumentBuilderFactory factory;
     private DocumentBuilder builder;
@@ -28,7 +29,7 @@ public class XMLXpathService {
 
     private Transformer transformer;
 
-    protected XMLXpathService() {
+    protected KnimeNodeService() {
         factory = DocumentBuilderFactory.newInstance();
         factory.setValidating(false);
         factory.setNamespaceAware(true);
@@ -53,7 +54,7 @@ public class XMLXpathService {
         }
     }
 
-    public Document buildDocument(File xmlFile){
+    public Document buildDocumentFromXML(File xmlFile){
         Document doc = null;
         try {
             doc = builder.parse(xmlFile);
@@ -84,10 +85,13 @@ public class XMLXpathService {
         return null;
     }
 
-    public void saveDocument(File nodeSettings, Document xmlSettings) {
-        String newNodeSettingsPath = backupSettings(nodeSettings);
+    public void saveNode(KnimeNode node){
+        String newNodeSettingsPath =  node.getNodeSettings().getAbsolutePath();
+
+        backupNode(node);
+
         Result result = new StreamResult(newNodeSettingsPath);
-        Source source = new DOMSource(xmlSettings);
+        Source source = new DOMSource(node.getXmlSettings());
 
         try {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -96,42 +100,44 @@ public class XMLXpathService {
             log.info("Changed DOM document saved to file.");
         } catch (TransformerException e) {
             log.error("Could not transform DOM document to XML file.", e);
-            restoreSettings(nodeSettings, newNodeSettingsPath);
+            restoreNode(node);
         }
     }
 
-    private void restoreSettings(File nodeSettings, String newNodeSettingsPath) {
-        File originalSettings = new File(newNodeSettingsPath);
-        File backedUpSettings = ServiceFactory.getFileSystemService().getBackupFile(nodeSettings);
-
+    private void restoreNode(KnimeNode node){
         try {
-            ServiceFactory.getFileSystemService().moveFileSilently(backedUpSettings, originalSettings);
-            log.info("File " + originalSettings.getName() + " was restored.");
+            ServiceFactory.getFileSystemService().moveFileSilently(node.getBackupFile(), node.getNodeSettings());
+            log.info("Node " + node.getNodeRoot().getName() + " was restored.");
         } catch (IOException e) {
-            log.error("File " + originalSettings.getName() + " could not be restored.", e);
+            log.error("Node " + node.getNodeRoot().getName() + " could not be restored.", e);
         }
     }
 
-    private String backupSettings(File nodeSettings) {
+    private void backupNode(KnimeNode node){ //File nodeSettings) {
         //create backup folder if not exists
-        String backupFolderName = ServiceFactory.getFileSystemService().getBackupFolderName(nodeSettings);
-        File backupRoot = ServiceFactory.getFileSystemService().createFolder(backupFolderName);
+        ServiceFactory.getFileSystemService().createFolder(node.getBackupFolderName());
 
-        //backup settings
-        File backupFile = ServiceFactory.getFileSystemService().getBackupFile(nodeSettings);
         //if there is an older backup file, delete it
-        if(backupFile.exists()){
-            backupFile.delete();
+        if(node.getBackupFile().exists()){
+            node.getBackupFile().delete();
         }
+
         //do the backup, if fails return null
-        String newNodeSettings = nodeSettings.getAbsolutePath();
         try {
-            ServiceFactory.getFileSystemService().moveFileSilently(nodeSettings, backupFile);
-            log.info("File " + nodeSettings.getName() + " was backuped.");
+            ServiceFactory.getFileSystemService().moveFileSilently(node.getNodeSettings(), node.getBackupFile());
+            log.info("Node " + node.getNodeRoot().getName() + " was backuped.");
         } catch (IOException e) {
-            log.error("File " + nodeSettings.getName() + " could not be backuped.", e);
-            return null;
+            log.error("Node " + node.getNodeRoot().getName() + " could not be backuped.", e);
         }
-        return newNodeSettings;
+    }
+
+    public String getParameterValue(Document doc, String key){
+        Node entryNode = ServiceFactory.getKnimeNodeService().compileExecuteXpath(doc, "//entry[@key='"+key+"']");
+        return entryNode.getAttributes().getNamedItem("value").getNodeValue();
+    }
+
+    public void setParameterValue(Document doc, String key, String value){
+        Node output = ServiceFactory.getKnimeNodeService().compileExecuteXpath(doc, "//entry[@key='"+key+"']");
+        output.getAttributes().getNamedItem("value").setNodeValue(value);
     }
 }

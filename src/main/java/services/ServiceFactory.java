@@ -7,7 +7,7 @@ package services;
 public class ServiceFactory {
     private static PropertiesLoaderService propertiesLoaderService = null;
     private static ShellCommandsExecutorService shellCommandsExecutorService = null;
-    private static XMLXpathService xmlXpathService = null;
+    private static KnimeNodeService knimeNodeService = null;
     private static FileSystemService fileSystemService = null;
     private static KnimeLogSettingsService knimeLogSettingsService = null;
 
@@ -25,11 +25,11 @@ public class ServiceFactory {
         return shellCommandsExecutorService;
     }
 
-    public static XMLXpathService getXmlXpathService() {
-        if(xmlXpathService == null){
-            xmlXpathService = new XMLXpathService();
+    public static KnimeNodeService getKnimeNodeService() {
+        if(knimeNodeService == null){
+            knimeNodeService = new KnimeNodeService();
         }
-        return xmlXpathService;
+        return knimeNodeService;
     }
 
     public static FileSystemService getFileSystemService(){

@@ -1,8 +1,9 @@
 package knimeEntities;
 
-import knimeEntities.Nodes.DatabaseQueryExecutors.DatabaseQueryExecutorKnimeNode;
-import knimeEntities.Nodes.DatabaseQueryExecutors.DatabaseReaderKnimeNode;
-import knimeEntities.Nodes.KnimeNode;
+import knimeEntities.knimeNodes.KnimeHiveConnectorNode;
+import knimeEntities.knimeNodes.KnimeSqlExecutorNode;
+import knimeEntities.knimeNodes.KnimeNode;
+import knimeEntities.knimeNodes.KnimeWriterNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import performance.KnimeLogCostsMapper;
@@ -16,18 +17,20 @@ import java.util.ArrayList;
 /**
  * Created by cloudera on 3/29/16.
  */
-public class KnimeWorkflow {
+public class KnimeWorkflow extends KnimeNode{
 
-    private Logger log = LoggerFactory.getLogger(KnimeWorkflow.class);
-
-    private File workflowRoot = null;
+    private static Logger log = LoggerFactory.getLogger(KnimeWorkflow.class);
 
     private ArrayList<KnimeNode> nodes = null;
 
-    private DatabaseQueryExecutorKnimeNode databaseExecutor = null;
+    private KnimeSqlExecutorNode sqlExecutor = null;
 
-    public KnimeWorkflow(File root) {
-        workflowRoot = root;
+    private KnimeHiveConnectorNode hiveConnector = null;
+
+    private ArrayList<KnimeWriterNode> writers = null;
+
+    public KnimeWorkflow(File root) throws IOException {
+        super(root, "workflow.knime");
     }
 
     public String runWorkflow(String db, String table){
@@ -37,9 +40,9 @@ public class KnimeWorkflow {
         commands[2] = "-nosplash";
         commands[3] = "-application";
         commands[4] = "org.knime.product.KNIME_BATCH_APPLICATION";
-        commands[5] = "-workflowDir="+ this.workflowRoot.getPath();
+        commands[5] = "-workflowDir="+ super.getNodeRoot().getPath();
         commands[6] = "-reset";
-        //ServiceFactory.getShellCommandsExecutorService().callProcess(commands);
+
         StringBuilder comSb = new StringBuilder();
         for (String command: commands) {
             comSb.append(command + " ");
@@ -51,33 +54,41 @@ public class KnimeWorkflow {
     }
 
     private File[] findNodes(){
-        if(workflowRoot != null && workflowRoot.isDirectory()){
-            return workflowRoot.listFiles(new FileFilter() {
+        if(super.getNodeRoot() != null && super.getNodeRoot().isDirectory()){
+            return super.getNodeRoot().listFiles(new FileFilter() {
                 public boolean accept(File pathname) {
-                    return pathname.isDirectory() && !pathname.isHidden();
+                    return pathname.isDirectory() && !pathname.isHidden() && !pathname.getName().equals("backup");
                 }
             });
         }
-
-        return null;
+        return new File[0];
     }
 
     private ArrayList<KnimeNode> loadNodes(){
         nodes = new ArrayList<KnimeNode>();
+        writers = new ArrayList<KnimeWriterNode>();
+
         File[] roots = findNodes();
         for (File root: roots) {
             try {
-                KnimeNode node = null;
-                if(root.getName().contains("Database Reader ")){
-                    DatabaseQueryExecutorKnimeNode databaseExecutor = new DatabaseReaderKnimeNode(root);
-                    node = databaseExecutor;
-                    this.databaseExecutor = databaseExecutor;
-                }else{
-                    node = new KnimeNode(root);
+                KnimeNode node = new KnimeNode(root);
+
+                if ("hive_connector".equals(node.getLabel())) {
+                    KnimeHiveConnectorNode hiveConnector = new KnimeHiveConnectorNode(root);
+                    node = hiveConnector;
+                    this.hiveConnector = hiveConnector;
+                }else if("sql_executor".equals(node.getLabel())) {
+                    KnimeSqlExecutorNode sqlExecutor = new KnimeSqlExecutorNode(root);
+                    node = sqlExecutor;
+                    this.sqlExecutor = sqlExecutor;
+                }else if(node.getLabel() != null && node.getLabel().contains("export_")) {
+                    KnimeWriterNode writerNode = new KnimeWriterNode(root);
+                    node = writerNode;
+                    this.writers.add(writerNode);
                 }
                 nodes.add(node);
             } catch (IOException e) {
-                log.error("Node " + root.getName() + "could not be loaded - settings not found.", e);
+                log.error("Node " + root.getName() + " could not be loaded - settings not found.", e);
             }
         }
 
@@ -91,15 +102,41 @@ public class KnimeWorkflow {
         return loadNodes();
     }
 
-    public DatabaseQueryExecutorKnimeNode getDatabaseExecutor() throws NullPointerException{
-        if (databaseExecutor == null) {
+    public KnimeSqlExecutorNode getSqlExecutor() throws NullPointerException{
+        if (sqlExecutor == null) {
             loadNodes();
         }
-        return databaseExecutor;
+        return sqlExecutor;
     }
 
     public String getWorkflowName(){
-        return workflowRoot.getName();
+        return super.getNodeRoot().getName();
+    }
+
+    /**
+     * Uloží všechny uzly workflow, jejichž nastavení se změnilo od posledního uložení.
+     * Uloží i své vlastní nastavení, pokud se změnilo.
+     */
+    public void saveWorkflow(){
+        //uložení uzlů
+        for (KnimeNode node: nodes) {
+            if(node.isChanged()){
+                node.saveXmlSettings();
+            }
+        }
+        //uložení sebe sama
+        if(super.isChanged()){
+            this.saveXmlSettings();
+        }
+    }
+
+    /**
+     * @return složka, kde bude uložena záloha nodu
+     */
+    @Override
+    public String getBackupFolderName() {
+        String workflowBackupFolder = this.getNodeRoot().getAbsolutePath() + File.separator + "backup";
+        return workflowBackupFolder + File.separator + this.getNodeRoot().getName();
     }
 
     @Override
@@ -107,5 +144,7 @@ public class KnimeWorkflow {
         return getWorkflowName();
     }
 
-
+    public KnimeHiveConnectorNode getHiveConnector() {
+        return hiveConnector;
+    }
 }

@@ -12,7 +12,7 @@ import java.util.Date;
  * Created by cloudera on 4/11/16.
  */
 public class KnimeLogCostsMapper implements CostsMapper{
-    private Logger log = LoggerFactory.getLogger(KnimeLogCostsMapper.class);
+    private static Logger log = LoggerFactory.getLogger(KnimeLogCostsMapper.class);
     private ArrayList<String> inputLog = null;
     private String db;
     private String table;

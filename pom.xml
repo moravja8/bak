@@ -29,5 +29,10 @@
             <artifactId>h2</artifactId>
             <version>1.4.191</version>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations-java5</artifactId>
+            <version>RELEASE</version>
+        </dependency>
     </dependencies>
 </project>
