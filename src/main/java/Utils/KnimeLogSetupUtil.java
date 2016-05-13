@@ -33,7 +33,7 @@ public class KnimeLogSetupUtil {
      */
     private static void setUp() throws NullPointerException{
         StringBuilder logFilePath = new StringBuilder();
-        String knimeWorkingFolder = DaoFactory.getPropertiesDao().getProperty("knimeWorkingFolder");
+        String knimeWorkingFolder = DaoFactory.getPropertiesDao().get("knimeWorkingFolder");
         logFilePath.append(knimeWorkingFolder);
         logFilePath.append(File.separator);
         logFilePath.append(".metadata");
@@ -45,7 +45,6 @@ public class KnimeLogSetupUtil {
         knimeLogSettingsFile = new File(logFilePath.toString());
 
         if(!knimeLogSettingsFile.isFile()){
-            log.error("Log4j settings file for Knime was not found. Cost estimation will not work.");
             throw new NullPointerException();
         }
     }
@@ -54,7 +53,12 @@ public class KnimeLogSetupUtil {
      * Adds node appender-ref[@ref='batchexec'] to root node, backups old settings and saves new settings.
      */
     public static void addBatchExecutorLogger() throws IOException {
-        setUp();
+        try {
+            setUp();
+        } catch (NullPointerException e) {
+            log.error("Log4j settings file for Knime was not found. Cost estimation will not work.", e);
+            return;
+        }
 
         parsedSettings = DaoFactory.getKnimeNodeDao().createDOM(knimeLogSettingsFile);
 

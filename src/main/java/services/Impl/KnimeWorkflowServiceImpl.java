@@ -26,7 +26,11 @@ public class KnimeWorkflowServiceImpl implements KnimeWorkflowService {
     private ArrayList<KnimeWorkflowNode> workFlows = null;
 
     public KnimeWorkflowServiceImpl(){
-        knimeWorkingFolder = new File(DaoFactory.getPropertiesDao().getProperty("knimeWorkingFolder"));
+        try {
+            knimeWorkingFolder = new File(DaoFactory.getPropertiesDao().get("knimeWorkingFolder"));
+        } catch (NullPointerException e) {
+            log.error("Application properties are not set correctly.", e);
+        }
     }
 
     private File[] findWorkFlows(){
@@ -62,9 +66,9 @@ public class KnimeWorkflowServiceImpl implements KnimeWorkflowService {
         return loadWorkFlows();
     }
 
-    public String runWorkflow(KnimeWorkflowNode workflowNode, String db, String table){
+    public String runWorkflow(KnimeWorkflowNode workflowNode, String db, String table) throws NullPointerException{
         String[] commands = new String[7];
-        commands[0] = DaoFactory.getPropertiesDao().getProperty("knimeHome") + File.separator + "knime";
+        commands[0] = DaoFactory.getPropertiesDao().get("knimeHome") + File.separator + "knime";
         commands[1] = "-consoleLog";
         commands[2] = "-nosplash";
         commands[3] = "-application";

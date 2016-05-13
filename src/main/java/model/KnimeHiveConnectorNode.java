@@ -32,11 +32,11 @@ public class KnimeHiveConnectorNode extends KnimeNode {
     public void refreshSettings() {
         loadSettings();
 
-        String appDriver = DaoFactory.getPropertiesDao().getProperty("HiveDriver");
-        String appDefaultDatabase = DaoFactory.getPropertiesDao().getProperty("HiveDefaultDatabase");
-        String appUser = DaoFactory.getPropertiesDao().getProperty("HiveDriver");
-        String appPassword = DaoFactory.getPropertiesDao().getProperty("HivePassword");
-        String appDatabase = DaoFactory.getPropertiesDao().getProperty("HiveServer") + "/" + appDefaultDatabase;
+        String appDriver = DaoFactory.getPropertiesDao().get("HiveDriver");
+        String appDefaultDatabase = DaoFactory.getPropertiesDao().get("HiveDefaultDatabase");
+        String appUser = DaoFactory.getPropertiesDao().get("HiveDriver");
+        String appPassword = DaoFactory.getPropertiesDao().get("HivePassword");
+        String appDatabase = DaoFactory.getPropertiesDao().get("HiveServer") + "/" + appDefaultDatabase;
 
         if(!driver.equals(appDriver)){
             setDriver(appDriver);

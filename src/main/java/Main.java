@@ -12,13 +12,17 @@ class Main {
 
     public static void main(String[] args) {
         H2Connector.getInstance();
+        /* FIXME
         try {
             KnimeLogSetupUtil.addBatchExecutorLogger();
         } catch (IOException e) {
             log.error("Could not load log settings of Knime", e);
         }
+        */
         MainFrame mf = new MainFrame();
         mf.init();
+
+
     }
 }
 
@@ -79,13 +83,6 @@ class Main {
     - bude do vyhodnocovani zahrnuta aktualni vytizenost hive serveru? - neni v rozsahu bp
 */
 
-// TODO dok
-/**
- * v exp casti psat spise o myslenkach, nedelat z toho programatorskou dokumentaci... popsat jak se napojuje na data, jak jsou ulozeny
- *
- * reseny problem versus reseni
- */
-
 // TODO merger wf
 // muze doslova mergovat ruzna wf - je asi mozne, ale je nutne davat pozor na hromadu veci
 // muze jen spojovat metanody - asi lepsi, nutno otestovat
@@ -93,11 +90,13 @@ class Main {
 // - pri sestavovani wf z metanodu je potreba odmazat nody bez vstupni hrany
 // -
 
-// TODO sunchronizovat nastaveni Hive connectoru v aplikaci a v knihovne
+//TODO nastaveni aplikace - properties
 
-// TODO jednotna zmena ciloveho adresare
+// DONE sunchronizovat nastaveni Hive connectoru v aplikaci a v knihovne
 
-// OUTPUT - ulozeni vystupu nodu musi byt deklarovano explicitne nejakum writerem
+// DONE jednotna zmena ciloveho adresare - pomoci property
+
+// DONE - ulozeni vystupu nodu musi byt deklarovano explicitne nejakum writerem
 
 
 

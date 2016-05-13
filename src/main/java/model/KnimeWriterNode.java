@@ -26,7 +26,7 @@ public class KnimeWriterNode extends KnimeNode {
         if(outputFile == null){
             String[] labelParts = super.getLabel().split("_");
             if(labelParts.length == 2){
-                return DaoFactory.getPropertiesDao().getProperty("OutputFolder") +
+                return DaoFactory.getPropertiesDao().get("OutputFolder") +
                         File.separator + labelParts[1];
             }else{
                 log.error("Label of export node is not in correct format. " +
@@ -38,7 +38,7 @@ public class KnimeWriterNode extends KnimeNode {
     }
 
     public void refreshSettigs(){
-        ServiceFactory.getKnimeNodeService().setParameterValue(super.getXmlSettings(), "OutPutFile", this.getOutputFile());
+        ServiceFactory.getKnimeNodeService().setParameterValue(super.getXmlSettings(), "filename", this.getOutputFile());
         super.setChanged(true);
     }
 }

@@ -39,7 +39,10 @@ public abstract class DbConnector {
                 }
                 return null;
             }
-        } catch (SQLException e) {
+        }catch (NullPointerException e){
+            log.error("Connection to db is not working.", e);
+            return  null;
+        }catch (SQLException e) {
             log.error("SQL query failed: " + sql);
             return null;
         }
@@ -68,7 +71,9 @@ public abstract class DbConnector {
         String conn = dbServer + File.separator + getCurrentDatabase();
         try {
             Class.forName(driverName);
-        } catch (ClassNotFoundException e) {
+        }catch (NullPointerException e){
+            log.error("DB driver is not set up properly", e);
+        }catch (ClassNotFoundException e) {
             log.error("Could not find driver class " + driverName, e);
         }
         try {

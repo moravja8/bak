@@ -16,7 +16,7 @@ public class H2Connector extends DbConnector{
         super.currentDatabase = "bp;AUTO_SERVER=TRUE";
         super.dbUser = "sa";
         super.dbPassword = "";
-        super.dbServer = "jdbc:h2:" + DaoFactory.getPropertiesDao().getProperty("H2DestinationFolder");
+        super.dbServer = "jdbc:h2:" + DaoFactory.getPropertiesDao().get("H2DestinationFolder");
 
         connect();
     }

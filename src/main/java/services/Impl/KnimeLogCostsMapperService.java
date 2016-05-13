@@ -21,6 +21,10 @@ public class KnimeLogCostsMapperService implements KnimeCostsMapperService {
         ArrayList<String> filteredLog = filterIputLog(inputLog);
         ArrayList<String[]> costMap = createCostMap(filteredLog, db, table, wf);
 
+        if(costMap == null){
+            return "";
+        }
+
         StringBuilder costsSb = new StringBuilder();
         for (String[] line: costMap) {
             String sql = "insert into costs values('" + line[0]+"','"+line[1]+"','"+line[2]+"','"+ line[3]+"','"+line[4]+"',"+line[5]+","+line[6]+")";
@@ -34,6 +38,11 @@ public class KnimeLogCostsMapperService implements KnimeCostsMapperService {
     }
 
     public ArrayList<String[]> createCostMap(ArrayList<String> filteredLog, String db, String table, String wf) {
+        if(filteredLog == null){
+            return null;
+        }
+
+
         ArrayList<String[]> costmap = new ArrayList<String[]>();
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
         Date now = new Date();
@@ -46,20 +55,26 @@ public class KnimeLogCostsMapperService implements KnimeCostsMapperService {
             line = line.replace("End execute", "");
 
             int paren = line.lastIndexOf('(');
-            String duration = line.substring(paren).replaceAll("\\D", "");
-            String rest = line.substring(0, paren-1).trim();
+            if(paren >= 0) {
+                String duration = line.substring(paren).replaceAll("\\D", "");
+                String rest = line.substring(0, paren - 1).trim();
 
-            int lastSpace = rest.lastIndexOf(' ');
-            String nodeName = rest.substring(0, lastSpace).trim();
-            String nodeNbr = String.valueOf(Integer.valueOf(rest.substring(lastSpace).trim().replace(":", "")).intValue());
+                int lastSpace = rest.lastIndexOf(' ');
+                String nodeName = rest.substring(0, lastSpace).trim();
+                String nodeNbr = String.valueOf(Integer.valueOf(rest.substring(lastSpace).trim().replace(":", "")).intValue());
 
-            costmap.add(new String[]{strDate, db, table, wf, nodeName, nodeNbr, duration});
+                costmap.add(new String[]{strDate, db, table, wf, nodeName, nodeNbr, duration});
+            }
         }
 
         return costmap;
     }
 
     private ArrayList<String> filterIputLog(ArrayList<String> input) {
+        if(input == null){
+            return null;
+        }
+
         ArrayList<String> output = new ArrayList<String>();
         for (String line: input) {
             log.trace("Readed line from input log: " + line);

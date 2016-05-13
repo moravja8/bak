@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by cloudera on 4/10/16.
@@ -24,7 +25,9 @@ public class MainFrame {
     private Logger log = LoggerFactory.getLogger(MainFrame.class);
 
     private JMenuBar menuBar;
-    private JMenu editMenu;
+    private JMenu workflowMenu;
+    private JMenu applicationMenu;
+
 
     private JPanel mainPanel;
     private JPanel leftBar;
@@ -45,7 +48,7 @@ public class MainFrame {
     private GridBagConstraints gridBagConstraints = new GridBagConstraints();
 
     public void init() {
-        JFrame frame = new JFrame("Analitic component");
+        JFrame frame = new JFrame("Analytic component");
 
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -103,9 +106,24 @@ public class MainFrame {
         //Menubar
         menuBar = new JMenuBar();
 
+        //Application menu
+        applicationMenu = new JMenu("Application");
+        applicationMenu.getAccessibleContext().setAccessibleDescription(
+                "Main application menu.");
+
+            //Config tlačítko
+            JMenuItem configApplicationMenuItem = new JMenuItem("Config");
+            configApplicationMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    ApplicationSettingsFrame configFrame =
+                            new ApplicationSettingsFrame();
+                    configFrame.init();
+                }
+            });
+
         //Edit menu
-        editMenu = new JMenu("Workflow");
-        editMenu.getAccessibleContext().setAccessibleDescription(
+        workflowMenu = new JMenu("Workflow");
+        workflowMenu.getAccessibleContext().setAccessibleDescription(
                 "Menu for editing the workflow.");
 
             //Edit workflow tlačítko
@@ -151,11 +169,14 @@ public class MainFrame {
             });
 
         //Přidání objektů do menu
-        editMenu.add(editWorkflowMenuItem);
-        editMenu.add(saveWorkflowMenuItem);
-        editMenu.add(restoreWorkflowMenuItem);
-        editMenu.add(reloadWorkflowMenuItem);
-        menuBar.add(editMenu);
+        applicationMenu.add(configApplicationMenuItem);
+        menuBar.add(applicationMenu);
+
+        workflowMenu.add(editWorkflowMenuItem);
+        workflowMenu.add(saveWorkflowMenuItem);
+        workflowMenu.add(restoreWorkflowMenuItem);
+        workflowMenu.add(reloadWorkflowMenuItem);
+        menuBar.add(workflowMenu);
 
     }
 
@@ -192,7 +213,10 @@ public class MainFrame {
             while(res.next()){
                 dbCombobox.addItem(res.getString("database_name"));
             }
-        } catch (SQLException e) {
+        }catch (NullPointerException e){
+            log.error("The database connection is not set up correctly.", e);
+            outputTextarea.append("The database connection is not set up correctly. For further information see the log file. \n");
+        }catch (SQLException e) {
             log.error("The database list was not read correctly.", e);
             outputTextarea.append("The database list was not read correctly. For further information see the log file. \n");
         }
@@ -223,7 +247,10 @@ public class MainFrame {
             while(res.next()){
                 tableCombobox.addItem(res.getString("tab_name"));
             }
-        } catch (SQLException e) {
+        }catch (NullPointerException e){
+            log.error("The database connection is not set up correctly.", e);
+            outputTextarea.append("The database connection is not set up correctly. For further information see the log file. \n");
+        }catch (SQLException e) {
             log.error("The table list was not read correctly.", e);
             outputTextarea.append("The table list was not read correctly. For further information see the log file. \n");
         }
@@ -271,6 +298,14 @@ public class MainFrame {
 
         runWorkflowButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                Date start = new Date();
+
+                if(workflowsCombobox.getSelectedItem() == null){
+                    outputTextarea.append("No workflow was selected to run.");
+                    outputTextarea.update(outputTextarea.getGraphics());
+                    return;
+                }
+
                 outputTextareaRefresh();
                 costsTextareaRefresh();
                 KnimeWorkflowNode knimeWorkflow = (KnimeWorkflowNode) workflowsCombobox.getSelectedItem();
@@ -282,10 +317,14 @@ public class MainFrame {
 
                 outputTextarea.append("Workflow " + workflowsCombobox.getSelectedItem() + " executed successfully. \n");
                 outputTextarea.append("Exported results are to be found in folder "
-                        + DaoFactory.getPropertiesDao().getProperty("OutputFolder"));
+                        + DaoFactory.getPropertiesDao().get("OutputFolder"));
+
+                Date end = new Date();
+                long duration = (end.getTime() - start.getTime()) / 1000;
 
                 outputTextarea.update(outputTextarea.getGraphics());
                 costsTextarea.append(costs);
+                costsTextarea.append("Duration of execution of analytic job was " + duration + " secs.");
                 costsTextarea.update(costsTextarea.getGraphics());
             }
         });

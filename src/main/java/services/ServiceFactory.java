@@ -3,6 +3,7 @@ package services;
 import services.Impl.KnimeLogCostsMapperService;
 import services.Impl.KnimeNodeServiceImpl;
 import services.Impl.KnimeWorkflowServiceImpl;
+import services.Impl.PropertiesServiceImpl;
 
 /**
  * not thread safe
@@ -13,6 +14,7 @@ public class ServiceFactory {
     private static KnimeNodeService knimeNodeService = null;
     private static KnimeWorkflowService knimeWorkflowService = null;
     private static KnimeCostsMapperService knimeCostsMapperService = null;
+    private static PropertiesService propertiesService = null;
 
     public static KnimeNodeService getKnimeNodeService() {
         if(knimeNodeService == null){
@@ -33,5 +35,12 @@ public class ServiceFactory {
             knimeCostsMapperService = new KnimeLogCostsMapperService();
         }
         return knimeCostsMapperService;
+    }
+
+    public static PropertiesService getPropertiesService() {
+        if(propertiesService == null){
+            propertiesService = new PropertiesServiceImpl();
+        }
+        return propertiesService;
     }
 }

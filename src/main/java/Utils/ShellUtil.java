@@ -21,6 +21,8 @@ public class ShellUtil {
         try {
             p = Runtime.getRuntime().exec(command);
             p.waitFor();
+
+            /* FIXME
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
             ArrayList<String> output = new ArrayList<String>();
 
@@ -29,8 +31,10 @@ public class ShellUtil {
                 log.trace(line);
                 output.add(line);
             }
+
             log.info("Command execution terminated "+ command);
-            return output;
+            return output; */
+            return null;
 
         } catch (Exception e) {
             log.error("Error occured during command execution", e);

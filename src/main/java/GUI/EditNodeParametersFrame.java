@@ -109,12 +109,22 @@ class EditNodeParametersFrame {
 
     private void nodesRefresh() {
         nodeComboBox.removeAllItems();
-        for (KnimeNode node : workflow.getNodes()){
-            nodeComboBox.addItem(node);
+        try {
+            for (KnimeNode node : workflow.getNodes()){
+                nodeComboBox.addItem(node);
+            }
+        } catch (Exception e) {
+            log.error("No nodes were found.", e);
+            outputTextArea.setText("No nodes were found!");
+            outputTextArea.update(outputTextArea.getGraphics());
         }
     }
 
     private void parametresRefresh(KnimeNode node) {
+        if(node == null){
+            return;
+        }
+
         parametersComboBox.removeAllItems();
 
         HashMap<String, String> parameters = node.getParameters();
@@ -152,6 +162,11 @@ class EditNodeParametersFrame {
         setParameterButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 KnimeNode node = (KnimeNode) nodeComboBox.getSelectedItem();
+
+                if(node == null){
+                    return;
+                }
+
                 node.updateParametres((String) parametersComboBox.getSelectedItem(), parameterValueTextArea.getText());
 
                 log.info("Setting parameter " + parametersComboBox.getSelectedItem() +  " of workflow  "
