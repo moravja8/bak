@@ -12,13 +12,13 @@ class Main {
 
     public static void main(String[] args) {
         H2Connector.getInstance();
-        /* FIXME
+
         try {
             KnimeLogSetupUtil.addBatchExecutorLogger();
         } catch (IOException e) {
             log.error("Could not load log settings of Knime", e);
         }
-        */
+
         MainFrame mf = new MainFrame();
         mf.init();
 
@@ -55,17 +55,7 @@ class Main {
         - hive explain je rule based, cost based explain je diskutovan napr na jire https://issues.apache.org/jira/browse/HIVE-1938 ,
         ale vypada to, ze se vyvoj zastavil
     ...
-    TODO pokud tabulka neexistuje, vytvorit
-    sql pro vytvoreni h2 tabulky
-    create table costs(
-	executedAt 	varchar2(22),
-	database_name 	varchar2(50),
-	table_name 	varchar2(50),
-	workflow_name	varchar2(100),
-	node_name		varchar2(50),
-	node_nbr		integer,
-	duration		integer
-)
+
 
 
     DONE v ramci testovani vyhodnocovace by bylo vhodne nahrat nejaka vhodna data do knimu
@@ -75,22 +65,20 @@ class Main {
 
 //  TODO dopsat javadoc
 
-//  TODO vytvorit junit testy
-
-/* TODO OpenPoint
+/* OpenPoint
     - jakym zpusobem se bude zobrazovat vysledek vraceny spustenym wf - bude ulozeny v souboru, na ktery bude vypsana cesta
     - aplikace bude rikat jen jak je aktualni rozlozeni vykonne nebo bude i navrhovat upravu? - neni v rozsahu bp
     - bude do vyhodnocovani zahrnuta aktualni vytizenost hive serveru? - neni v rozsahu bp
 */
 
-// TODO merger wf
+// merger wf
 // muze doslova mergovat ruzna wf - je asi mozne, ale je nutne davat pozor na hromadu veci
 // muze jen spojovat metanody - asi lepsi, nutno otestovat
 // nebyl nalezen sw, ktery toto dela
 // - pri sestavovani wf z metanodu je potreba odmazat nody bez vstupni hrany
 // -
 
-//TODO nastaveni aplikace - properties
+// DONE nastaveni aplikace - properties
 
 // DONE sunchronizovat nastaveni Hive connectoru v aplikaci a v knihovne
 

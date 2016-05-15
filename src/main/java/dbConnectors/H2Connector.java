@@ -19,6 +19,7 @@ public class H2Connector extends DbConnector{
         super.dbServer = "jdbc:h2:" + DaoFactory.getPropertiesDao().get("H2DestinationFolder");
 
         connect();
+        init();
     }
 
     public static DbConnector getInstance() {
@@ -43,5 +44,21 @@ public class H2Connector extends DbConnector{
 
     protected void setDb(String dbName) {
         throw new NotImplementedException();
+    }
+
+    /**
+     * Vytvoří tabulku potřebnou pro ukládání metadat o spuštěných analýzách. 
+     */
+    private void init( ){
+        String sql = "create table if not exists costs(\n" +
+                        "executedAt varchar2(22),\n" +
+                        "database_name varchar2(50),\n" +
+                        "table_name varchar2(50),\n" +
+                        "workflow_name varchar2(100),\n" +
+                        "node_name varchar2(50),\n" +
+                        "node_nbr integer,\n" +
+                        "duration integer)";
+
+        execute(sql);
     }
 }

@@ -13,7 +13,7 @@ import java.util.Properties;
 public class PropertiesDaoImpl implements PropertiesDao{
     private static Logger log = LoggerFactory.getLogger(PropertiesDaoImpl.class);
     private Properties properties = null;
-    private String propertiesFile = "/config.properties";
+    private String propertiesFile = File.separator + "config.properties";
 
 
 
@@ -53,7 +53,7 @@ public class PropertiesDaoImpl implements PropertiesDao{
         properties = new Properties();
 
         try {
-            input = new FileInputStream(getClass().getResource(propertiesFile).getPath());
+            input = getClass().getResourceAsStream(propertiesFile);
             properties.load(input);
         } catch (IOException ex) {
             ex.printStackTrace();
