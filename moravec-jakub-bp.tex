@@ -1,0 +1,586 @@
+\documentclass[11pt,twoside,a4paper]{book}  
+% definice dokumentu
+\usepackage[czech, english]{babel}
+\usepackage[T1]{fontenc} 				% pouzije EC fonty 
+\usepackage[utf8]{inputenc} 			% utf8 kódování vstupu 
+\usepackage[square, numbers]{natbib}	% sazba pouzite literatury
+\usepackage{indentfirst} 				% 1. odstavec jako v cestine, pro práci v aj možno zakomentovat
+\usepackage{fancyhdr}					% tisk hlaviček a patiček stránek
+\usepackage{nomencl} 					% umožňuje snadno definovat zkratky a jejich seznam
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% informace o práci
+\newcommand\WorkTitle{Transformace uživatelských dotazů pro analýzu dat v průmyslové automatizaci}					% název
+\newcommand\FirstandFamilyName{Jakub Moravec}															% autor
+\newcommand\Supervisor{Ing. Václav Jirkovský}																% vedoucí
+
+\newcommand\TypeOfWork{Bakalářská práce}	% typ práce [Diplomová práce | Bakalářská práce | Bachelor's Project | Master's Thesis ]	
+
+% Nastavte následují podle vašeho oboru a programu (pomoc hledejte na http://www.fel.cvut.cz/cz/education/bk/prehled.html)								
+\newcommand\StudProgram{Otevřená informatika, Bakalářský}	% program
+\newcommand\StudBranch{Softwarové systémy}           					% obor
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% minimální importy
+\usepackage{graphicx}					% pro vkládání obrázků
+\usepackage{k336_thesis_macros} 		% specialni makra pro formatovani DP a BP
+\usepackage[
+pdftitle={\WorkTitle},				% nastaví v informacích o pdf název
+pdfauthor={\FirstandFamilyName},	% nastaví v informacích o pdf autora
+colorlinks=true,					% před tiskem doporučujeme nastavit na false, aby odkazy a url nebyly šedé při ČB tisku
+breaklinks=true,
+urlcolor=red,
+citecolor=blue,
+linkcolor=blue,
+unicode=true,
+]
+{hyperref}								% pro zobrazování "prokliknutelných" linků 
+
+% rozšiřující importy
+\usepackage{listings} 			%slouží pro tisk zdrojových kódů se syntax higlighting
+\usepackage{algorithmicx} 		%slouží pro zápis algoritmů
+\usepackage{algpseudocode} 		%slouží pro výpis pseudokódu
+
+\usepackage{float}                          %specifikace umístění float objektů
+\usepackage{color}     
+%definice
+\definecolor{maroon}{rgb}{0.5,0,0}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\lstdefinelanguage{XML}
+{
+  basicstyle=\ttfamily,
+  morestring=[s]{"}{"},
+  morecomment=[s]{?}{?},
+  morecomment=[s]{!--}{--},
+  commentstyle=\color{darkgreen},
+  moredelim=[s][\color{black}]{>}{<},
+  moredelim=[s][\color{red}]{\ }{=},
+  stringstyle=\color{blue},
+  identifierstyle=\color{maroon}
+}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% příkazy šablony
+\makenomenclature								% při překladu zajistí vytvoření pracovního souboru se seznamem zkratek
+
+\let\oldUrl\url									% url adresy budou zobrazeny: <url> 
+\renewcommand\url[1]{<\texttt{\oldUrl{#1}}>}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% vaše vlastní příkazy
+\newcommand*{\nomExpl}[2]{#2 (#1)\nomenclature{#1}{#2}} 	% usnadňuje zápis zkratek : Slova ke Zkrácení (SZ)
+\newcommand*{\nom}[2]{#1\nomenclature{#1}{#2}} 			% usnadňuje zápis zkratek : SZ
+
+\newcommand{\adimg}[3]{\begin{figure}[h]\begin{center}\includegraphics[width=#1]{figures/#2}\caption{#3}\label{fig:logo}\end{center}\end{figure}} 
+% #1 width, #2 name, #3 popis
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% vlastní dokument
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%% 
+	% nastavení jazyka, kterým je práce psána
+	\selectlanguage{czech}	% podle jazyka práce nastavte na [czech | english]
+	\translate				% nastaví české nebo anglické popisy (např. katedra -> department); viz k336_thesis_macros
+	
+	%nastavení nerozdělovaných slov
+	\hyphenation{Hadoop MapReduce Mahout KNIME Hive}
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%    
+	% Titulni stranka / Title page 
+	\coverpagestarts
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+	% Poděkovani / Acknowledgements	 
+	\acknowledgements
+	\noindent
+	Rád bych poděkoval svému vedoucím bakalářské práce Ing. Václavu Jirkovskému za vedení a směřování této práce a ochotu při konzultacích práce, které byly pro zdárné dokončení práce velice důležité. Za cenné postřehy pro prezentaci práce bych rád poděkoval Ing. Marku Obitkovi Ph.D. Závěrem bych rád poděkoval své rodině a přátelům za podporu a rady při psaní práce.
+
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+	% Prohlášení / Declaration 
+
+	%TODO
+	\declaration{V~Praze dne 25.\,5.\,2016}
+
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
+	% Abstrakt / Abstract 
+ 	%TODO
+	\abstractpage
+
+	Abstract
+
+	\vglue60mm
+
+	\noindent{\Huge \textbf{Abstrakt}}
+	\vskip 2.75\baselineskip
+
+	Abstrakt
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%    
+	% obsahy a seznamy
+	\tableofcontents		
+
+	% pokud v práci nejsou obrázky nebo tabulky - odstraňte jejich seznam
+	\listoffigures			
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%% 
+	% začátek textu  
+	\mainbodystarts
+
+\chapter{Úvod} 
+	\section{Zpracování dat v průmyslu}
+		Odvětví průmyslové automatizace se dnes potýká s potřebou zpracování a anylýzy velkého objemu různorodých dat, mezi hlavními například senzoricky generovanými datovými řadami, informacemi z vyšší úrovně řízení (MES/ERP systémy\footnote{Enterprise Resource Planning/ Manufacturing Execution Systems - integrované systémy průmyslových organizací řídící velkou část provozu organizace, například plánování, zásoby, finance.}) nebo data z externích zdrojů\footnote{Příkladem mohou být například data o počasí nebo kurzech měn.}. Tato data jsou různorodá nejen z pohledu informací, které přinášejí, ale také z pohledu své reprezentace a svého významu, který může být chápán odlišně v různých kontextech. Zároveň vzrůstá náročnost na analýzu dat z hlediska časových omezení. Analýzy, které dříve byly prováděny jednou týdně či měsíčně je dnes zapotřebí vykonávat v reálném nebo téměř reálném čase, protože jsou často zákledem pro automatické řízení a rozhodování sysytémů.
+
+		Konvenčními přístupy ke zpracování dat bylo donedávna možné naplnit pouze některé z těchto požadavků. Změnu v tomto ohledu přinesly koncepty a nástroje obecně označované jako Big Data, které umožňují zpracování takovýchto dat s ohledem na vysoké požadavky, které má průmyslová automatizace. 
+		
+	\section{Semantic Big Data Historian}	
+		Semantic Big Data Historian\cite{historian01, historianb02} je stejně jako běžné historiany zaměřen na zpracování a ukládání dat v podobě časových řad produkovaných zpravidla senzorickými měřeními. Jeho hlavním cílem je rozšířit možnosti běžných historianů a to především umožněním pokročilých analýz nad různorodými daty v měřítku, které doposud nebylo možné. Záměrem je rozšířit možnosti analýzy pomocí integrace různorodých datových zdrojů - kromě senzoricky generovaných dat se může jednat například o data z vyšší úrovně řízení nebo o externí data. Integrace těchto datových zdrojů a jejich následná analýza může přinést nový pohled na získaná data v kontextech, ve kterých zkoumání v tomto měřítku doposud nebylo možné. Právě zvětšení měřítka analýzy - tedy objemu analyzovaných dat je dalším z cílů konceptů Semantic Big Data Historianu.    
+
+		Schopnost integrace heterogenních dat z různých datových zdrojů je základním předpokledem pro naplnění definovaných cílů. Pro tento účel je zvolen přístup sémantického zpracování a ukládání dat. Data jsou integrována pomocí sdílené SHS ontologie\footnote{SHS ontologie je rozšířením SSN ontologie\cite{ssn01} - základní ontologie pro zpracování senzorických dat.}. Ontologie popisuje data generovaná jednotlivými senzory i data získaná z dalších zdrojů a slouží jako doménový model pro sémantickou integraci dat. Integrovaná data jsou ukládána ve formě trojic \{subjekt, predikát, objekt\} sémanticky odpovídajících ontologii, která uložená data popisuje. 
+
+		Data jsou zpracovávána pomocí frameworku Apache Hadoop, díky čemuž je umožněno ukládání a analyzování velkého objemu dat. Jako datové uložiště slouží distribuovaný souborový systém HDFS, který umožňuje téměř neomezené škálování řešení z pohledu objemu dat. Obdobně je zajištěna také škálovatelnost analytických dotazů, které jsou vykonávány pomocí frameworku MapReduce. Data nejsou dotazována přímo pomocí MapReduce dotazů - pro přístup k datům je použit framework Apache Hive, který umožňuje dotazovat uložená data pomocí dialektu dotazovacího jazyka SQL. 
+
+		Semantic Big Data Historian tedy definuje způsoby sémantické integrace datových zdrojů a zpracování dat pomocí Big Data konceptů a nástrojů. 
+
+	\section{Definice problému} \label{sec:def}
+
+	\section{Struktura práce} 
+		
+		
+\chapter{Teoretická část}
+	\section{Big Data}
+		\paragraph{}
+		Termín Big Data je dnes zmiňován v mnoha kontextech a popisován různými definicemi. Základní a zřejmě nejrozšířenější definice, která popisuje Big Data pomocí tří hlavních charakteristik\footnote{Definice Big Data pomocí "3Vs"} má původ ve výzkumné zprávě Douglase Laney \cite{Laney01} z roku 2001. Tato definice byla roku 2012 upravena do následujicí podoby\footnote{V originálním znění: "Big data is high volume, high velocity, and/or high variety information assets that require new forms of processing to enable enhanced decision making, insight discovery and process optimization".}: "Big Data jsou soubory dat velkého objemu, velké rychlosti a/nebo velké různorodosti, která vyžadují nové formy zpracování pro umožnění lepšího rozhodování, většího porozumění domény a optimalizace procesů.". Definice popisuje Big Data z pohledu tří hlavních dimenzí - objemu, různorodosti a rychlosti.  
+		
+		\textbf{Objem} dat virtuálního světa je dnes obrovský a rychle narůstá. Se vznikem internetu se změnil způsob, jakým data vznikají - dříve byla data zadávána do systémů zaměstnanci společností, zatímco dnes generují data především sami uživatelé internetu. Podle statistik dnes sociální síť Facebook spravuje více než 30 petabytů uživatelských dat. Americký obchodní řetězec Walmart zpracovává milion zákaznických transakcí za hodinu a velikost jeho databází je odhadována na 2,5 petabytu. V oblasti průmyslu je generováno stále více senzorových dat potřebných ke zdokonalování automatizace procesů a tento trend má předpoklad rapidně narůstat s rozvojem oblasti IoT\footnote{Internet of Things} \cite{iot01}, která přináší automatizaci i do každodenního života. Na celkovém objemu dat virtuálního světa se nepodílejí pouze velké společnosti, ale i uživatalé běžným používáním internetu, tvorbou fotografií, telefonními hovory, emailovou komunikací atd. Podle statistiky IDC\footnote{International Data Corporation} \cite{IDC01} se celkový objem dat virtuálního světa zdvojnásobuje každé dva roky, IDC odhaduje že v roce 2020 bude tento objem 44 zettabytů, což je v bitech číslo blížící se počtu hvězd ve vesmíru.
+
+		Podstatné z pohledu konkrétního případu je, že dataset roste natolik rychle, že je obtížné s ním pracovat pomocí běžných databázových konceptů a nástrojů.  
+		
+		Možnost efektivního zpracování velkého objemu dat přináší nové možnosti pro analýzu dat. Je možné analyzovat data, která by za použití standardních metod analyzována být nemohla (náročnost analýzy by byla příliš vysoká) a hledat v datech souvislosti, které by zůstaly utajeny. 
+
+		\textbf{Rychlost} v pojetí definice Big Data má několik rozměrů - jak rychle jsou data vytvářena, ukládána a zpracovávána (analyzována a vizualizována). V minulosti, především v oblasti datových skladů a Bussiness Intelligence \cite{bi01}, se stalo standardem dávkové ukládání, zpracovávání a analyzování dat, následkem čehož byly analýzy potřebné pro rozhodovaní napočítané nad daty den, týden či měsíc starými. Přestože jsou tato řešení stále hojně používána, narůstá potřeba data ukládat, zpracovávat a analyzovat v reálném nebo téměř reálném čase. Systémy a aplikace v oblasti automatizace (ať už jde o průmyslovou automatizaci, nebo například chytrá zařízení denního použití spadající pod IoT) jsou kriticky závislé na zpracování dat v reálném čase.    
+		
+		\textbf{Různorodost} dat, která potřebujeme zpracovat, stále narůstá. Velká část dat generovaných společnostmi je nestrukturovaná, což přináší problémy s jejich ukládáním a zpracováním. Data jsou často získávána z různých zdrojů a jejich reprezentace je rozdílná - aplikační databáze, streamy senzorových dat, logovací soubory, nestrukturované textové soubory. Důležitým zdrojem dat mohou být ale i fotografie nebo videa.  Při snaze zpracovávat, ukládat a analyzovat takto různorodá data pomocí relačních databází nastává řada problémů - například pevně definované schéma databáze neumožňuje flexibilní práci s daty. Právě možnost analýzy a tvorby prognóz nad integrovanými daty je považována za jeden ze zásadních přínosů konceptů Big Data. \cite{NVP01}
+		
+		Big Data koncepty nabízejí řešení těchto problémů, na druhé straně ale často postrádají vlastnosti, díky kterým jsou  konvenční RDBMS\footnote{Relational Database Management System} řešení dnes tak masivně používaná.  
+
+		\subsection{Koncepty Big Data}
+	
+		Nejpodstatnějším rozdílem proti konvenčním technologiím je distribuovanost datového uložiště a distribuované zpracování dat. \cite{Hellr01} Není snaha ukládat data na jeden centralizovaný server, jako je tomu u RDBMS, naopak, data jsou distribuována přes mnoho serverů pomocí distribuovaného souborového systému (HDFS, GFS, CassandraFS, Amazon S3). Efektivita ukládání a dotazování dat úzce souvisí s počtem uzlů distribuovaného uložiště a rozsprostřením dat mezi uzly. Pokud je rozprostření dat rovnoměrné, potom je škálovatelnost distribuovaného uložiště téměř lineární.
+		
+		Masivní paralelizací je také docíleno zvýšení rychlosti ukládání a čtení dat. Zatímco navyšovat kapacitu centralizovaného datového uložiště dnes není velký problém, udržet při zvyšující se kapacitě konstantní přístupovou rychlost k datům (čas, za který mohou být přečtena všechna data v uložišti) je komplikované. Nárůst kapacity datových uložišť mezi lety 1990 až 2010 byl více než 700násobný, rychlost čtení dat se ale v průměru zvýšila "pouze" 22krát. \cite{white01} Je tedy zřejmé, že centralizovaná datová uložiště zásadní vývoj v rychlosti zpracování dat přinést nemohou. Nabízí se tedy řešení pomocí paralelizace - data je  potřeba nejen paralelně ukládat, ale také paralelně číst a zpracovávat. Ve světě relačních databází se touto cestou vydala například Terada. Tento databázový systém užívaný v oblasti data warehousingu zaručuje lineární škálovatelnost nejen z hlediska kapacity, ale také z hlediska zpracování dat. Řešení je ovšem mnohonásobně dražší než jsou řešení používající Big Data koncepty (především kvůli nutnosti zakoupit od Teradaty servery, které mají proti běžným databázovým serverům hardwarová specifika). Big Data technologie oproti tomu využívají běžně dostupný hardware. Jednotlivé uzly  mohou používat zařízení různých parametrů od různých výrobců - není nutné, aby se jednalo o specifické databázové servery. Dotazování dat distribuovaných databází je často realizováno pomocí MapReduce algoritmu \cite{MapRed01}. Principem je zpracování dat na jednotlivých uzlech. Pokud je tedy spolu s objemem uložených dat navyšován i počet uzlů databáze, rychlost komplexního dotazu napříč uzly v zásadě nenarůstá.  
+
+		Konvenční RDBMS technologie jsou postaveny na jasně definovaném databázovém schématu, vazbách mezi tabulkami, primárních kličích a indexovaných sloupcích, což vede k velké efektivitě při dotazování strukturovaných dat. Jak již bylo naznačeno, spolu s definicí Big Data se ale rozšířila i definice dat samotných - nyní chápeme data v mnohem širším kontextu než před deseti či pátnácti lety. Statické datové schéma v chápání RDBMS systémů již není dostatečně flexibilní pro různorodá data, která chceme zpracovávat. Stejně tak indexované tabulky jsou pro Big Data přežitkem (minimálně na úrovni uložiště dat, existují analytické nástroje, například Solr, které indexování používají), indexování je časově velmi nákladná činnost, zvláště v kontextu objemu dat, o kterém se bavíme v rámci Big Data. Distribuované databáze používané v Big Data řešeních jsou nazývány NoSQL (můžeme chápat jako "non SQL", "not relational" nebo "not only SQL"). Data v nich jsou ukládána následujícími způsoby: 
+\begin{itemize}  
+\item klíč-hodnota struktura (Membase, Voldemort, Riak),
+\item sloupcová struktura (HBase, BigTable), 
+\item dokumentová struktura (MongoDb),
+\item grafová struktura (Neo4j).
+\end{itemize}
+		
+		 Kvůli snaze docílit vyší rychlosti  a škálovatelnosti NoSQL databáze (až na výjimky) porušují transakční model ACID\footnote{ACID = Atomicity, Consistency, Isolation, Durability. Akronym popisuje čtyři základní vlastnosti transakcí v databázových systémech}. Vlastnosti transakcí popsané modelem ACID jsou zásadní pro RDBMS systémy, které kladou velký důraz na korektní vykonání všech operací - pro aplikace ve finanční oblasti může i jedna nekorektně provedená transakce znamenat velký problém (například ztráta informace o bankovním převodu). Big Data řešení tuto problematiku zcela neopomíjí, dávají ale větší důraz na jiné vlastnosti, v tomto případě rychlost.   
+ 		
+		Ze silného zaměření NoSQL databází na paralelní zpracování dat vyplývá, že  se dle CAP teorému\footnote{CAP = Consistency, Availability, Partition Tolerance. Teorém říká, že databáze může splnit pouze dvě ze tří těchto základních vlastností databázových systémů.}  dělí mezi skupiny AP\footnote{Tyto databáze upřednostňují přístupnost databáze před konzistencí dat, do skupina patří mimo jiné databáze Apache Cassandra, Riak a Voldemort} a  CP\footnote{Tyto databáze upřednostňují konzistenci dat před přístupností databáze, do této skupiny patří mimo jiné databáze BigTable, HBase a MongoDB}. NoSQL databáze vždy zajišťuje správnou funkčnost databáze napříč jejími oddíly. Skupina CA, tedy databáze konzistentní a stále přístupné, definuje konvenční RDBMS systémy a není v souladu se základním Big Data principem - paralelizace. 
+		   
+		Výše popsané koncepty (paralelní ukládání a zpracování dat, použití běžně dostupného hardwaru, flexibilní schéma uložiště) umožňují Big Data datovým uložištím efektivně pracovat s velkým objem různorodých dat, na druhou stranu ale také ukazují jejich nevýhody oproti konvenčním řešením. 
+
+		\subsection{Hadoop} \label{sec:hadoop}
+		Jak bylo řečeno v úvodu, Semantic Big Data Historian využívá (v současné době) pro ukládání a zpracování dat framework Apache Hadoop, a proto mu je v této kapitole věnována důkladnější pozornost.
+
+		Hadoop - Big Data framework, který poskytuje velice stručně řečeno distribuované uložiště a nástroje pro parelelní analýzu dat, vytvořil Doug Cutting, tvůrce Apache Lucene\footnote{Knihovna pro textové vyhledávání, v rámci projektu byl vytvořen i další analytický nástroj - Solr}. Hadoop vznikal jako součást projektu Apache Nutch, open source webového vyhledávače, který je sám součástí Apache Lucene. Nutch byl ambiciózní a nákladný projekt, odhadovaná cena pro vyhledávač s indexem čítajícím bilion stránek byla milion dolarů za hardware a 30 tisíc dolarů za měsíc provozu. Cílem projektu bylo vytvořit otevřený vyhladávač a vyhledávací algoritmy. Projekt se po svém odstartování v roce 2002 začal rychle rozrůstat a Doug Cutting si uvědomil, že současná architektura nedovolí potřebné škálování projektu. V roce 2003 publikoval Google zprávu o architektuře sdíleného souborového systému GFS, který využíval.\cite{GFS01} Cutting se rozhodl pro vytvoření open source implementace GFS s názvem Nutch Distributed Filesystem (NDFS), která vyřešila jeho problémy se škálovatelností projektu Nutch z hlediska objemu dat. Krátce poté, co Google publikoval zprávu, ve které světu představil MapReduce \cite{MapRed01}, implementovali vývojáři MapReduce pro projekt Nutch a během půl roku byly hlavní vyhledávací algoritmy přesunuty na NDFS a MapReduce. NDFS a MapReduce byly postupně vyčleněny nejdříve jako poprojekt Apache Lucene s názvem Hadoop a následně jako samostatný projekt Apache Hadoop. Ve stejné době také začal Cutting spolupracovat na vývoji Hadoopu s firmou Yahoo!, která v roce 2008 deklarovalo, že Yahoo vyhledávací index je generovaný Hadoopovým clusterem s deseti tisíci uzly. Hadoop následně začaly využívat další společnosti jako Last.fm, Facebook nebo New Yourk Times. Hadoop také získal světový rekord za seřazení terabytu dat (cluster s 910 uzly, výsledný čas 209 sekund). \cite{white01}
+		
+		Hadoop dnes zahrnuje celou rodinu produktů. V této práci jsou popsány HDFS (kapitola \ref{sec:hdfs}), MapReduce (kapitola \ref{sec:mapreduce}), distribuovaná databáze HBase (kapitola \ref{sec:hbase}) a analytické nástroje Mahout (kapitola \ref{sec:mahout}) a Hive (kapitola \ref{sec:hive}).
+
+		\subsubsection{HDFS}  \label{sec:hdfs}
+		Hadoop Distributed Filesystem je distribuovaný souborový systém, jehož účelem je nahradit kapacitu jednoho fyzického zařízení rozdělením dat napříč mnoha zařízeními (uzly) komunikujícími po počítačové síti. Jeho architektura je navržena pro ukládání souborů obrovské velikosti (stovky megabytů, gigabyty, terabyty), streamovaných, strukturovaných i nestrukturovaných dat za využití běžného hardwaru. Návrh je optimalizován pro  vzor write-once, read-many-times se silným zaměřením na rychlost čtení dat (analýzy nad daty vyžadují přečtení velké části, ne-li celého datasetu) a dávkové zpracování dat. Uživatel může číst a zapisovat data na HDFS pomocí někalika rozhraní, typicky pomocí rozhraní příkazové řádky (příkaz "hadoop fs cmd", kde "cmd" je POSIXový příkaz) nebo rozhraní pro Javu. \cite{white01}
+			
+		%bloky
+		V HDFS jsou data uložena po blocích o velikosti 64 MB, což je řádově více než u běžných souborových systémů. Důvodem pro tuto velikost bloků je snaha minimalizovat čas hledání souborů (nebo částí souborů). Zavedení abstraktních bloků má také další výhody:   
+\begin{itemize}  
+\item jeden soubor může být větší než je kapacita kteréhokoliv pevného disku v clusteru,
+\item správa bloků je jednodušší než správa jednotlivých souborů - je možné oddělit metadata souborů od dat a spravovat je separátně,
+\item bloky mohou být jednoduše replikovány napříč několika jinými fyzickými disky pro případ selhání disku.
+\end{itemize}
+
+                %namenodes datanodes
+		Již bylo uvedeno, že HDFS cluster se skládá z uzlů. Tyto uzly se dělí na dva typy - \textit{namenody} a \textit{datanody} - podle vzoru master-worker, přičemž namenode je master, zatímco datanode je worker. Namenody mají na starosti adresářovou strukturu, udržují metada jednotlivých souborů a informaci o tom, mezi které datanody (a jejich bloky) jsou rozdělené soubory, jejichž metadata udržují. Datanody ukládají a čtou data dle pokynů namenodů nebo klientských požadavků a periodicky informují datanode o svém stavu. 
+
+		%failover
+		HDFS uzly jsou běžnými hardwarovými zařízeními, s jejich vzrůstajícím počtem se sice zvyšuje efektivita clusteru, ale také pravděpodobnost selhání namenodu nebo datanodů. Vzhledem k tomu, že bez znalosti metadat, která udržuje namenode nelze s daty uloženými na datanodech pracovat, je důležité, aby byla patřičně ošetřena možnost selhání namenodu. Toho může být dosaženo buďto zálohováním dat namenodu nebo přidáním sekundárního namenodu (běžícího na jiném fyzickém zařízení), který je schopen data primárního namenodu zrekonstruovat. Přesto může být v případě výpadku namenodu čas obnovení, respektive uvedení v provoz nového namenodu, relativně dlouhý - cca 30 minut. HDFS proto umožňuje High-Availability mód, který za cenu přidání záložního namenodu snižuje čas výpadku na cca 1 minutu. Pokud aktivní namenode selže, záložní převezme jeho povinnosti. Doba výpadku je potom určena především časem potřebným k detekci selhání aktivního namenodu. Způsob ošetření selhání datanodů je odlišný. HDFS cluster má nastavený replikační faktor (výchozí replikační faktor je tři), který určuje kolikrát je blok replikován na různých nodech. V případě selhání datanodu jsou "ztracené" bloky rekonstruovány z ostatních replik. Replikační faktor může ale sloužit ještě jinému účelu. HDFS umožňuje čtení dat bloku z různých replik, vyšší replikační faktor tedy může navýšit míru paralelizace čtení dat a tedy i rychlost clusteru. \cite{hdfs01}
+
+		%anatomie čtení
+		Čtení dat z HDFS klientem (klient může být například uživatelská aplikace nebo jeden z datanodů) probíhá následovně:
+\begin{enumerate}  
+\item namenode vrátí pro každý blok souboru adresy všech datanodů, které mají repliku bloku, seznam adres je seřazený podle vzdálenosti mezi datanodem a klientem, 
+\item bloky souboru jsou čteny vždy z nejbližšího datanodu, pokud při čtení bloku dojde k chybě, je blok čten z dalšího nejbližšího datanodu a datanode, u kterého došlo k chybě čtení je uložen do paměti a další bloky z něj již čteny nejsou.
+\end{enumerate}
+		Klient při čtení komunikuje přímo s jednotlivými datanody, přičemž namenode klientovi nabízí ty nejbližší. Vzdálenost je v tomto případě definována šířkou pásma síťového spojení mezi klientem a datanodem, pořadí od nejbližšího po nejvzdálenější datanode je určeno následovně: 
+\begin{enumerate}
+\item čtení dat uvnitř datanodu (datanode je zde v roli klienta i v roli zdroje dat),
+\item čtení dat jiného datanodu ve stejném racku,
+\item čtení dat datanodu v jiném racku ve stejném datovém centru,
+\item čtení dat datanodu z jiného datového centra. 
+\end{enumerate}
+		Celý proces čtení je z pohledu klienta nepřerušované čtení jednoho streamu dat.
+
+		%anatomie zápisu
+		Zápis dat na HDFS je komplikovanější než čtení (HDFS je optimalizován pro čtení, koncept write-once, read-many-times). 
+\begin{enumerate}
+\item Namenode zkontroluje, zda soubor již neexistuje a zda má klient oprávnění nový soubor vytvořit,
+\item klient začne ukládat data pomocí streamu,
+\item namenode rozhoduje, které datanody budou využity pro uložení replik bloků,
+\item zápis bloků na datanody je zřetězený, při replikačním faktoru n je tedy blok zapsán nejdříve na první datanode, na druhý ... až na ntý.
+\end{enumerate}
+		Pokud některý z datanodů při zápisu dat selže, je vyřezen z řetězce a nahrazen jiným vhodným datanodem. Zápis dat je úspěšný, pokud jsou bloky zapsány na minimální definovaný počet datanodů (výchozí nastavení je jeden datanode) a po dokončení zápisu jsou bloky asynchronně replikovány na další datanody, dokud není dosažen požadovaný replikační faktor.  
+		Vhodné datanody pro ukládání replik bloků jsou vybírány namenodem tak, aby byla vyvážená spolehlivost, rychlost zápisu a rychlost čtení. První replika je uložena na náhodný datanode (je snaha vybírat méně naplněné datanody), druhá a třetí replika jsou uloženy na jiný rack, než ta první, každá na jiný datanode. Další repliky jsou ukládány na náhodné datanody.   
+
+		%vybalancovaný cluster
+		Pro efektivní čtení dat je podstatné, aby byly jednotlivé uzly dobře vyvážené. Pokud by byla většina replik uložena jen na několika datanodech, byly by tyto datanody při čtení dat přetížené, zatímco ostatní by zůstaly nevyužívané.
+		
+		%limity
+                I přes vysokou efektivitu a škálovatelnost HDFS jsou problémy, pro které se použití HDFS příliš nehodí. Obecně je HDFS nevhodný pro: 
+\begin{itemize}
+\item aplikace s požadavkem na nízkou latenci (v řádu desítek milisekund). HDFS je optimalizovaný na velkou propustnost dat, tím se ale také zvyšuje latence. V případě potřeby nízké latence je lépe využít jiné uložiště, například HBase,
+\item ukládání velkého množství malých souborů. Omezením je zde především operační paměť namenodů, které udržují v paměti všechna metadata souborů.
+\end{itemize}
+
+		\subsubsection{HBase} \label{sec:hbase}
+		 HBase je distribuovaná sloupcově orientovaná databáze využívající HDFS jako souborový systém pro ukládání dat.\footnote{HDFS není jediný souborý systém, který HBase může používat, je ale používán nejčastěji. Alternativami mohou být například Amazon S3 nebo KFS.} Patří do skupiny NoSQL databází a je vhodná především pro real-timové zpravání dat a umožňuje náhodný přístup při zápisu a čtení velkých objemů dat. \cite{hbase02}
+		
+		Data jsou v HBase ukládána do tabulek, které jsou na úrovni buněk verzovány podle časového otisku v době vytvoření záznamu. Obsahem buněk i id  řádků tabulek je pole bytů - může jít v podstatě o jakákoliv data. Řádky tabulek jsou řazeny pomocí id řádků, které jsou zároveň primárním klíčem tabulky a všechny přístupy do tabulek jsou právě přes id řádků. I transakce jsou v HBase atomické na úrovni řádků. 
+
+		Sloupce tabulek jsou rozděleny do \textit{column families}, které jsou definovány ve schématu tabulky a kde všechny sloupce mají stejný prefix. Fyzicky jsou potom všechny sloupce jedné column family uloženy společně v rámci souborového systému. I nároky na uložení dat a další parametry jsou definovány na úrovni column family. Je tedy vhodné aby ke všem sloupcům column family bylo přistupováno stejným způsobem a z hlediska objemu měli podobnou charakteristiku. Column families můžou být tedy v jistém smyslu chápány jako vertikální oddíly tabulky.
+
+		Tabulky jsou podle rozsahu id řádků horizontálně rozděleny do oddílů zvaných \textit{regiony}. Region je základní distribuovaná entita (stejně jako u HDFS je to blok). Z toho vyplívá, že výhody pararelního přístupu k datům v HBase se neprojeví u tabulek, které mají pouze jeden region - tabulky s malým počtem záznamů.
+
+		Architektura HBase je postavena na pracujících a koordinujících uzlech - můžeme chápt jako master - slave architekturu. \textit{Master node} řídí cluster obsahující jeden nebo více \textit{regionserverů}, přiděluje nové regiony regionserverům a vypořádává se s výpadky regionserverů. Regionservery mají přiděleno nula až n regionů, zpracovávají klientské požadavky na čtení a zápis dat a informují master node v případě, že se některý z přidělených regionů rozdělí na dva - master node potom rozhodne, kterému regionserveru bude nový region přidělen. \cite{hbase01}
+
+		HBase využívá aplikaci ZooKeeper\footnote{ZooKeeper je tatkéž podprojektem Hadoopu, slouží ve jménu zajištění konzistence konfigurace serverů napříč distribuovaným systémem} pro konfiguraci svých serverů, ZooKeeper mimo jiné udržuje adresu aktuálního mastera clusteru a všech regionserverů. Přiřazování regionů regionserverům i řešení výpadků regionserverů je také zprostředkováno pomocí ZooKeeperu. 
+		
+		Vzhledem k tomu, že HBase vychází z HDFS je snaha, aby stejně řešené problémy byly v HBase implementovány stejným způsobem jako je tomu v HDFS. Od tohoto modelu se HBase odklání pouze v případech, kdy je její chování specifické - rozdílné oproti HDFS. Nejdůležijší z techto rozdílů jsou uvedeny v této kapitole.
+
+
+	\section{Analytické nástroje}
+		V předchozí kapitole jsou uvedené způsoby, jakými je možné efektivně ukládat data, která považujeme pro jejich velký objem, rychlost a různorodost za Big Data. Samotná datová uložiště ale nejsou dostatečným nástrojem pro komplexní zpracování dat, potřebujeme nástroje, které nám umožní uložená data analyzovat a získat tak z dat vědomosti. 
+
+		Nástrojů pro analýzu Big Data je mnoho a cílem této práce je popsat pouze ty z nich, které jsou využívané (nebo je jejich využití uvažováno) ve frameworku Semantic Big Data Historian. 
+	
+		\subsection{MapReduce} \label{sec:mapreduce}
+			MapReduce je programovací model pro zracování dat, který může být implementován v mnoha programovacích jazycích. Z toho důvodu je zřejmě nejuniverzálnějším nástrojem pro analýzu dat uvedeným v této práci. Stručná historie MapReduce je popsána v \ref{sec:hadoop}. 
+
+			Cílem MapReduce je efektivní analýza dat díky paralelnímu zpracování. Vstupní dataset je rozdělen na menší částí stejné velikosti a každá část datasetu je potom zpracovávána samostatným procesem. Tím je zajištěno, že všechny procesy trvají přibližně stejně dlouho\footnote{Každý proces zpracovává data o stejné velikosti, případný rozdíl v rychlosti zpracování je tedy dán hardwarovou specifikací zařízení, na kterém je proces spuštěn.}. Po skončení procesů zpracovávajících jednotlivé části datasetu je možné výsledky těchto procesů zkombinovat a vypočítat celkový výsledek. Zároveň musí být zajištěno, že pokud některý z procesů zpracovávajících část datasetu selže, bude situace vyřešena - v opačném případě by celkový výsledek nemusel být správný, nebyl by totiž vypočítán z celého datasetu, ale pouze z jeho části. MapReduce model tedy řeší následující problémy: 
+\begin{itemize}
+	\item{řízení celého výpočtu a řešení případných selhání procesů,}
+	\item{rozdělení vstupního datasetu,}
+	\item{zpracování jednotlivých částí datasetu - fáze \textit{Map},}
+	\item{zkombinování dílčích výsledků - fáze \textit{Shuffle},}
+	\item{vypočítání celkového výsledku - fáze \textit{Reduce}.}
+\end{itemize}
+	
+			V této práci je popsána implementace MapReduce frameworkem Hadoop. 
+
+			Jedna analýza pomocí MapReduce je nazývána \textit{job} a skládá se ze vstupních dat jobu, samotného MapReduce programu a konfiguračních parametrů. Job je rozdělen na \textit{tasky} dvou typů - \textit{map} tasky a \textit{reduce} tasky. Průběh jobu je kontrolován dvěmi typy uzlů - jedním \textit{jobtracker}em a mnoha \textit{tasktracker}y. Jobtracker koordinuje běh MapReduce jobu a plánuje spouštění jednotlivých tasků na tasktrackerech. Tasktracker spouští tasky a o jejich průběhu a výsledcích průběžně informuje jobtracker, který v případě selhání tasktrackeru přiřadí jeho tasky jinému tasktrackeru. Tím je zajištěn hladký průběh paralelního zpracování dat i v případě selhání některých jeho částí.\cite{mapredb02}
+
+			Vstupní dataset MapReduce rozděluje na menší části stejné velikosti - \textit{splits}. Tyto části jsou zpracovávány samostatně pomocí map tasků. Velikost těchto částí bývá stejná jako je velikost bloku HDFS, je nicméně možné ji nastavit jinak. Na každou část datasetu je vytvořen map task, pokud je tedy velikost určena jako příliš malá, tak je vytvořeno velké množství map tasků. Tím narůstá časová náročnost režie analýzy. Na druhé straně pokud je velikost určena jako příliš velká, nemusí být zcela využit potenciál pararelního zpracování datasetu. 
+
+			MapReduce je navržen tak, aby většina výpočtu byla vykonána na místě, kde jsou uložena data - uplatňuje se princip datové lokality. \cite{mapredc03} Z toho důvodu jsou map tasky přiřazeny jobtrackerem na uzly, kde je uložena replika bloku, který obsahuje část datasetu určenou pro daný ma task. Může ovšem nastat situace, že uzly, na kterých jsou všechny tři\footnote{Tři je výchozí hodnota replikačního faktoru HDFS, může být nastaveno jinak.} repliky tohoto bloku, již vykonávají jiný map task. Potom se hledá jiný uzel, který může map task provést. V takovém případě je porušen princip datové lokality a task je pomalejší - nejdříve je nutné přenést data na uzel, kde bude výpočet probíhat. Tato úzká souvislot alokace map tasků s velikostí HDFS bloků je dalším důvodem, proč by měl být vstupní dataset MapReduce jobu rozdělen na části stejně velké, jako je velikost HDFS bloku.\cite{mapreda01}
+
+			Úkolem map tasku je zpracování části datasetu tak, aby výsledné zpracování dat reduce taskem bylo co možná nejjednodušší. Výsledkem map tasku jsou páry klíč-hodnota. Po vykonání všech map tasků jsou tyto páry setříděny podle klíčů a předány reduce tasku. Reduce task potom může na základě výsledků všech map tasků spočítat požadovaný výsledek. Průběh MapReduce jobu s jedním reduce taskem je zobrazen na obrázku \ref{fig:mapreduce}. 
+
+\begin{figure}
+\begin{center}
+\label{fig:mapreduce}
+\includegraphics[width=14cm]{figures/mapreduce}
+\caption{Vizualizace průběhu MapReduce jobu s jedním reduce taskem.\cite{white01}}
+\end{center}
+\end{figure}
+
+			Reduce task nedodržuje princip datové lokality. V případě užití jednoho reduce tasku jsou výsledky všech map tasků přesunuty na uzel\footnote{Výsledky map tasků nejsou úkládány na HDFS, jak by se možná dalo očekávat, ale na běžný souborový systém. Tato data totiž není nutné udržovat v několika replikách - nepřineslo by to žádné zrychlení MapReduce jobu, spíše by to byla zbytečná zátěž pro HDFS cluster. }, na kterém běží reduce task. Výsledek reduce tasku - tedy výsledek celého MapReduce jobu je zapsaný na HDFS\footnote{Adresář pro zapsání výsledků MapReduce jobu se obvykle specifikuje při spouštění jobu}.
+
+			Reduce tasků nicméně může být nastaveno více. Jejich počet se neodvíjí od velikosti vstupních dat, ale je nastaven v rámci konfigurace MapReduce jobu. V případě použití více reduce tasků jsou výsledky map tasků rozděleny do tolika oddílů, kolik je definovaných reduce tasků. Páry se stejným klíčem jsou ale vždy součástí jednoho oddílu. Při nastavení více reduce tasků je důležité brát ohled na optimalici rozdělení výsledku map tasků a jejich setřídění (\textit{shuffle} fáze), protože se vzrůstajícím počtem reduce tasků narůstá složist a časová náročnost těchto fází jobu. V případě, že je možné výsledek celého jobu určit pouze pomocí map tasků, je teké možné nastavit počet reduce tasků na nula. \cite{white01}
+
+			\subsubsection{Výhody a nevýhody MapReduce}
+			MapReduce joby jsou velice efektvním způsobem analýzy velkého objemu dat. Uživatel má možnost definovat všechny atributy MapReduce jobu a tím analýzu optimalizovat z hlediska rychlosti a využití zdrojů. Psaní MapReduce programů je ale zpravidla složitější a časově náročnější než běžné způsoby analýzy dat a proto není příliš vhodný pro jednorázové analýzy. Z tohoto důvodu bývají často využívány analytické nástroje, které sice MapReduce využívají, ale nevynucují psaní vlastních MapReduce programů - například Hive. 
+
+		\subsection{Mahout}  \label{sec:mahout}
+			Mahout je knihovna škálovatelných algoritmů z oblasti strojového učení a vytěžování dat. Algoritmy jsou implementovány nad frameworkem Apache Hadoop\footnote{Pro účely této práce je Mahout popisován jako knihovna primárně využívající Hadoop - čím Mahout stále do jisté  míry je. Vývoj Mahoutu se ale stále více zaměřuje směrem k využívání jiných distribuovaných frameworků pro Big Data, především Apache Spark.\cite{spark01} V tomto kontextu je rozdíl především v tom, že SPARK nevyužívá Hadoop MapReduce pro analýzu dat. Na druhou stranu může využívat jiné Hadoop technologie jako například HDFS nebo YARN.\cite{yarn01}} a využívají MapReduce výpočetní model. Mahout poskytuje implementaci mnoha algoritmů\footnote{Seznam implementovaných algoritmů je dostupný na \cite{mahout01}.}, přičemž některé z nich jsou určeny pro lokální použití a některé jsou určeny pro použití v distribuovaném módu - s použitím Hadoopu. Algoritmy, které implementuje Mahout, se dělí podle svého účelu do čtyř hlavních skupin: 
+\begin{itemize}
+\item{\textit{Collaborative filtering}} - analýza chování uživatelů a vytváření doporučení pro produkty,
+\item{\textit{Clustering}} - rozdělení datasetu na třídy podle vlastností jednotlivých instancí,
+\item{\textit{Classification}} - přiřazování instancí do existujících kategorií na základě znalosti daných kategorií,
+\item{\textit{Frequent itemset mining}} - hledání nejčastějších skupin instancí.
+\end{itemize}
+ 		
+			Implementace a architektura jednotlivých algoritmů je obdobná. Liší především algoritmy samotné z pohledu disciplín vytěžování dat a strojového učení.\cite{datamining01} Architektura Mahout je ukázána na algoritmu \textit{recommender}, abstraktním jádru skupiny algoritmů \textit{collaborative filtering}.  
+
+			Recommender vytváří doporučení pro produkty na základě voleb uživatelů. Algoritmus tedy potřebuje dva datasety - uživatelské volby a produkty. Například knihkupectví může na základě předešlých transakcí analyzovat, jaké knihy je vhodné nabídnout určitým zákazníkům. Samotný recommender je implementací abstraktního jádra algoritmu a jeho využití vyžaduje specifikaci algoritmu\footnote{Alternativně mohou být použita již vytvořená implementace. Toto řešení je jednodušší, nicméně nemusí být vyhovující z hlediska použití pro konkrétní problém.} ve smyslu implementace předdefinovaných rozhraní či abstraktních tříd.\cite{mahoutb02} 
+ 
+			Algoritmus pracuje s datovým modelem jako rozhraním pro načtení potřebných datasetů. Implementací datového modelu může být teoreticky jakýkoliv zdroj, nejčastěji se ale jedná o databázový systém - ať už se jedná o RDBMS nebo NoSQL databáze. Mahout vyžaduje v rámci datového modelu identifikaci uživatelů a produktů pomocí číselného primárního klíče a specifikaci vazeb mezi uživateli a produkty ve smyslu preferencí prodůktů uživatelem. Tato preference může být vyjádřená numericky podle míry preference nebo může být pouze specifikováno, zda uživatel daný produkt preferuje, či nikoliv. Použití \textit{měkkých} a \textit{tvrdých} identifikátorů je možné zvolit téměř u všech algoritmů, které Mahout implementuje. 
+
+\begin{figure}
+\begin{center}
+\label{fig:mahout}
+\includegraphics[width=4cm]{figures/mahout}
+\caption{Vizualizace architektury aplikace s využitím Mahout reccomender.\cite{mahoutb02}}
+\end{center}
+\end{figure}	
+
+			Výsledná doporučení jsou vytvořena na základě datového modelu a konkrétní implementace algoritmu. Tato architektura je popsána obrázkem \ref{fig:mahout}.
+
+			\subsubsection{Výhody a nevýhody Mahout}
+				Mahout přináší zásadní výhody z hlediska škálovatelnosti analytických algoritmů vzhledem k objemu dat. Stejně jako mnoho jiných analytických nástrojů (například KNIME nebo RapidMiner\cite{rapidminer01}) nabízí možnost použití existujících implementací algoritmů z oblasti vytěžování dat a strojového učení. Navíc ale splňuje požadavky pro pararelní zpracování dat pomocí Hadoop MapReduce. Implementace algoritmů je ale vázána na konkrétní platformy a framework (Hadoop, Spark, ...), což v některých případech nemusí být žádoucí. 
+
+		\subsection{Hive} \label{sec:hive}
+			Hive je frameworkem pro datové sklady vystavěné na základě Apache Hadoop. Cílem Hivu je umožnit analýzu dat uložených v HDFS\footnote{Hive umožňuje požití většiny lokálních i distribuovaných souborových systémů pro ukládání dat, využití HDFS je ale nejčastější.} clusteru pomocí zavedeného nástroje typického pro analýzu dat relačních databází - SQL. Tím se výrazně rozšiřuje okruh analytiků, kteří můžou Hadoop a data uložená v HDFS využívat. Většina analytiků má dnes silné znalosti SQL, ale mnohem menší část z nich má programovací schopnosti odpovídající tomu, aby byli schopni efektivně psát pro své analýzy MapReduce programy. Hive umožňuje analyzovat data uložená v HDFS pomocí dotazů vlastního dialektu SQL jazyka - Hive QL\footnote{Hive Query Language}\cite{hiveql01} a tyto dotazy následně převádí na sérii MapReduce jobů. SQL sice není vhodným jazykem pro psaní komplikovaných algoritmů, například z oblasti strojového učení, pro většinu běžných analýz je ale naprosto dostačujícím prostředkem. 
+
+			Data jsou v Hivu uloženy v tabulkách, přičemž jsou striktně oddělena metadata tabulek a data samotná. Metadata (například databázové schéma) jsou ukládána do relační databáze, typicky Derby \cite{derby01} nebo MySQL, použitá ale může být téměř jakákoliv relační databáze. Metadatové uložiště se nazývá \textit{metastore} stejně jako služba, která metadata čte a zapisuje. Metastore může být používán v několika různých módech.\cite{white01}
+\begin{itemize}
+\item{\textit{Embedded metastore} je výchozím způsobem použití metastore v Hive. Služba metastore, stejně jako samotné uložiště jsou spuštěny ve stejném procesu jako samotný Hive. Z tohoto důvodu může v tomto módu vzniknout pouze jedna session do metastore databáze, Hive tedy může využívat současně pouze jeden uživatel. V tomto případě je vždy použita databáze Derby.}
+\item{\textit{Local metastore} už umožňuje vytvoření několika session do metastore databáze a tím pádem součesné používání Hivu několika uživateli. Rozdíl oproti embedded metastore je v tom, že metastore databáze již není spouštěna stejným procesem jako Hive, ale samostatně - ať už na stejném zařízení, nebo vzdáleně. Metastore služba je ale stále součástí stejného procesu jako Hive. V případech, kde je metastore databáze instalována a spouštěna samostatně je často využívána MySQL databáze.}
+\item{\textit{Remote metastore} jde ještě o krok dále, zde jsou i metastore služby spouštěny samostatně - pomocí samostatného metastore serveru a oddělené JVM. Tato architektura přináší výhody především v zabezpečení metastore databází, pro samotný Hive ale nepřináší velkou změnou oproti local metastore.}
+\end{itemize}
+
+			Samotné tabulky potom mohou být také dvou typů. 
+\begin{itemize}
+\item{\textit{Managed} tabulky jsou tabulky vytvořené Hivem a v souborovém systému jsou ukládány do adresáře \textit{warehouse}.}
+\item{\textit{External} tabulky jsou již existující soubory v souborovém systému, při jejich definici Hive pouze ukládá metadata tabulky.}
+\end{itemize}
+
+			Chování obou typů tabulek je ve většině případů stejné. Rozdíl je například u operace \textit{delete}, kdy u externí tabulky jsou mazána pouze metadata a samotný soubor v souborovém systému není operací nijak změněn. V obou případech jsou data uložena na souborovém systému - často HDFS a dotazována jsou pomocí MapReduce jobů. MapReduce joby jsou sestaveny podle Hive QL dotazu pomocí \textit{SQL-to-MapReduce} překladače. Překladač má zpravidla předdefinované MapReduce programy, které odpovídají jednotlivým operacím Hive QL dotazu - například select, join, agragace. Z těchto předdefinovaných programů poskládá sérii MapReduce jobů, které odpovídají původnímu Hive QL dotazu a vypočítají požadovýný výsledek. Nevýhodou tohoto přístupu je, že pokud je Hive QL dotaz komplikovanější, je vytvořena sério mnoha MapReduce jobů a tím může celá analýza trvat řádově delší čas, než pokud by byly MapReduce joby psány ručně. To co je schopen programátor vyřešit jedním MapReduce jobem může Hive rozdělit i do několika jobů, protože joby jsou přesně mapované na operace definované v Hive QL.\cite{hive01}
+
+			Tabulky jsou v Hivu rozdělovány na oddíly podle hodnoty sloupců, které jsou definovaný při vytvoření tabulky klauzulí \textit{partition by}. Všechny záznamy tabulky pro danou hodnotu sloupce takto označeného jsou uloženy do stejného oddílu. Na úrovni souborového systému jsou oddílu podadresáře celé tabulky (adresáře tabulky). Například pokud by byla tabulka do oddílů rozdělena podle datumu a Hive QL dotaz by vybíral pouze záznamy s určitým datumem (nebo s rozmezím datumů), byly by načítána pouze data z odpovídajících poadresářů. Tímto způsobem lze výrazně optimalizovat rychlost Hive QL dotazů. 
+
+			Architektura Hivu je klient-server\footnote{Pro spuštění Hive serveru je potřeba spustit službu \textit{hiveserver} nebo \textit{hiveserver2}.} a Hive poskytuje několik možností, jak může klient se serverem komunikovat. Komunikace Hive klientů s Hive serverem je popsána na obrázku \ref{fig:hive}.
+
+\begin{itemize}
+\item{\textit{Thrift} klient} komunikuje s Hive serverem pomocí Apache Thrift frameworku.\cite{thrift01}
+\item{\textit{ODBC} ovladač} umožňuje připojit se na Hive server pomocí ODBC protokolu. ODBC ovladač využívá Thrift klienta.  
+\item{\textit{JDBC} ovladač} umožňuje připojit se na Hive server pomocí JDBC protokolu. JDBC ovladač využívá Thrift klienta.
+\item{\textit{CLI} - rozhraní příkazové řádky operačního systému. Při využívání CLI aplikace není dodržena architektura klient-server, spouští se pouze jedna instance celé aplikace.}
+\item{\textit{HWI} - webové rozhraní Hivu. Při využívání HWI aplikace není dodržena architektura klient-server, spuští se pouze jedna instance celé aplikace.}
+\end{itemize}
+
+\begin{figure}
+\begin{center}
+\label{fig:hive}
+\includegraphics[width=14cm]{figures/hive}
+\caption{Vizualizace připojení Hive klientů na Hive server.\cite{white01}}
+\end{center}
+\end{figure}
+		
+			\subsubsection{Výhody a nevýhody Hive}
+			Hive je velkým přínosem pro využitelnost frameworku Apache Hadoop (nejen) v komerčním prostředí - umožňuje uživatelům analyzovat data ukládaná v HDFS pomocí všeobecně známého a široce rozšířeného nástroje - SQL. Na druhou stranu může být analýza dat pomocí Hive výrazně pomalejší než analýza pomocí uživatelsky vytvořených MapReduce programů. 
+ 
+		\subsection{KNIME} \label{sec:knime}
+			KNIME je modulární analytický nástroj, který vznikl jako výzkumný projekt na University of Konstanz. Založený je na implementaci algoritmů pomocí \textit{workflow}. Workflow jsou sestavena z uzů pro čtení, zpracování, vizualizaci a ukládání dat - uzly jsou tedy základními stavebními bloky implementace každého algoritmu. Sám uzel může být (a často také je) implementací nějakého algoritmu (například uzel \textit{Decision Tree Learner}). KNIME je koncipován primárně jako grafický nástroj, přestože je možné definovat uzly pomocí zdrojového kódu, cílem je, aby byly algoritmy implementovány za pomocí existujících uzlů, které jsou pomocí aplikace graficky spojeny ve workflow. KNIME workflow tedy mohou upravovat a vytvářet i analytici bez hlubokých znalostí programování a SQL. Za léta vývoje projektu\footnote{Vývoj KNIME započal roku 2004.} byl KNIME využíván v mnoha různých oborech a soušástí KNIMU jsou tedy dnes rozsáhlé knihovny implementovyných algoritmů z oborů jako jsou například vytěžování dat, strojové učení, statistika, integrace dat, chemie a mnoha dalších. Jednou z těchto knihoven je knihovna \textit{KNIME Big Data Extensions}\cite{knimebd01}, která umožňuje napojení KNIME na Big Data nástroje a uložiště (například HBase, Hive).   
+
+			Architektura aplikace KNIME je přizpůsobena třem základním principům.\cite{knime01}
+\begin{itemize}
+\item{Vizuální framework: je snaha aby všechny operace při tvorbě nebo úpravě workflow bylo možné vykonat pomocí grafického editoru workflow.}
+\item{Modularita: jednotlivé uzly a datové kontejnery by na sobě mělý být navzájem nezávislé tak, aby bylo možné je navzájem kombinovat při tvorbě workflow.}
+\item{Rozšířitelnost: aplikace je rozšířitelná o nové uzly a algoritmy pomocí pluginů. Způsob tvorby nových uzlů/pluginů je přesně specifikován.}
+\end{itemize}
+
+			Pro naplnění těchto principů jsou KNIME workflow implementována jako zřetězení uzlů navzájem propojených hranami, které mezi uzly přenáší data nebo modely. Každý uzel zpracovává data a/nebo modely, které dostane přes vstupní porty, a na svůj výstupní port předává zpracovaná data nebo vytvořený model. Většina uzlů také podporuje možnost vizualizace svého výstupu. Příklad schématu KNIME workflow je na obrázku \ref{fig:knime1}.  
+
+\begin{figure}
+\begin{center}
+\label{fig:knime1}
+\includegraphics[width=10cm]{figures/knime1}
+\caption{Schéma datového toku KNIME workflow.\cite{knime01}}
+\end{center}
+\end{figure}
+
+			Data předávaná mezi uzly hranami jsou ve formátu tabulky, která kromě dat samotných uchovává také metadata tabulky. Data mohou být čtena iterací tabulky po řádcích. K datům není přistupováno náhodně pomocí primárního klíče z důvodu zachování rychlosti čtení tabulky i při velkém objemu dat. Pokud je tabulka příliš velká na to, aby byla zpracovávána v paměti, ukládá KNIME části tabulky na pevný disk a v případě potřeby je opět načítá do paměti. Ukládání dat na pevný disk a opětovné načítání do paměti je řízeno cachovacím algoritmem.
+
+			Uzly mají definované vstupní a výstupní porty, přes které jsou spojené hranami s dalšími uzly a pomocí kterých si navzájem předávají data a/nebo modely. Workflow je potom acyklickým grafem tvořeným uzly a hranami. Workflow si udržuje informaci o stavu jednotlivých uzlů a o tom kdy a s jakými vstupními daty mají být uzly spuštěny. Díky tomuto je možné spouštět uzly nebo celé cesty grafu workflow nezávislé na zbytku grafu v samostatných vláknech.\cite{knime01, knimeb02}
+
+			KNIME umožňuje také zanořování částí workflow pomocí takzvaných \textit{metanodes}. Metanody se v rámci workflow chovají stejně jako běžné uzly s tou výjímkou, že sami mohou obsahovat acyklický graf uzlů a hran - jinými slovy metanody mohou obsahovat vnořené workflow. Metanody samotné je také možné zanořovat. Díky tomu je možné vytvářet komplikovanější workflow obsahující například cykly. 
+
+			Ačkoliv architektura KNIME není primárně určena pro distribuované zpracování dat, je možné toho v některých situacích docílit. Již bylo uvedeno, že je možné docílit paralelního zpracování dat pomocí KNIME workflow v různých vláknech jednoho procesu, a to na následujících úrovních:
+
+\begin{itemize}
+\item{paralelní zpracování nezávislých uzlů,}
+\item{paralelní zpracování dat jednoho uzlu,}
+\item{paralelní zpracování částí workflow - metanodů.}
+\end{itemize} 
+
+			Metanody můžou být spouštěny nejen paralelně, ale za jistých podmínek také distribuovaně. Typickým příkladem možného využití distribuovaného spouštění metanodů můžou být například cykly, ve kterých je metanode spouštěn opakovaně (s různými vstupními daty). Distribuovaným spouštěním metanodů je možné docílit přibližně osminásobného zrychlení při využití deseti pracovních stanic. Případů, kdy je možné a výhodné takovýto přístup zvolit ale není mnoho. Distribuované spouštění metanodů musí být konfigurováno explicitně.\cite{knimeb02}
+
+			\subsubsection{Výhody a nevýhody KNIME}
+				KNIME je oproti ostatním uvedeným analytickým nástrojům jediný, který může být využíván i uživateli bez znalostí programování nebo SQL. Díky otevřenosti frameworku obsahuje velké množství knihoven a implementovaných algoritmů, řádově více než například Mahout, a díky tomu je vhodný prakticky pro jakékoliv analýzy dat. Na druhou stranu je také jediným analytickým nástrojem popsaným v této práci, který není zaměřený na distribuované a paralelní zpracování dat. Je sice možné těchto přístupů v některých případech docílit, ale jedná se spíše o speciální případy. 
+
+
+	\section{Ontologie}\label{sec:ontologie}
+		V pojetí počítačových věd termín \textit{ontologie} a s ním spojené koncepty definují jeden z možných pohledů přístupu k datům - pohled na data z hlediska jejich významu (sémantiky). Termín samotný se ale objevuje mnohem dříve v jiných disciplínách. Z pohledu filozofie, ze které je termín převzatý, je ontologie oborem zabývajícím se jsoucnem a popisem reality, a jako taková je známa již od dob antiky. V počítačových vědách se termín objevuje od 70. let minulého století. Zde je definice ontologie sice rozdílná od té známé z filozofie, přesto má ale filozofické chápání ontologie přesah do počítačových věd. V roce 1993 definoval Thomas Gruber ontologii následovně\footnote{V originálním znění: "Ontology is an explicit specification of conceptualization."}: "Ontologie je explicitní specifikace konceptualizace.".\cite{ontologie01} Tato definice je potom rozšířena o další vlastnosti\cite{ontologieb02} a v roce 1998 shrunuta do následující formulace\footnote{V originálním znění: "An ontology is a formal, explicit specification of a shared conceptualization."}: "Ontologie je formlání, explicitní specifikace sdílené konceptualizace.".\cite{ontologiec03} Pro pochopení této definece je třeba rozumět jednotlivým použitým termínům.
+
+		\textit{Konceptualizace} je abstarktním, zjednodušeným pohledem na část reálného světa (domény), který si přejeme zachytit za určitým účelem.\cite{ontologie01} Uroveň detailu, kterou zvolíme pro vytvoření takového pohledu, rozhoduje o tom, zda je konceptualizace obecně platná, nebo zda se mění se změnami popisované domény. Konceptualizace vždy zachycuje pouze část domény s danou úrovní detailu. Z matematického pohledu může být konceptualizace popsána jako množina objektů domény a množina relací, kde relace mohou být unární nebo binární.\cite{ontologied04} 
+
+		Tyto elementy konceptualizace musí být zachyceny jazykem, který je definuje a popisuje. Přitom ale musí být zajištěno, že výklad symbolů takového jazyka bude interpretován vždy stejným způsobem.\footnote{Například při použití přirozeného jazyka může být význam jednotlivých slov interpretován různě rodilým mluvčím jazyka a cizincem se základní znalostí tohoto jazyka. Stejně tak jedna relace může být chápána různě v závislosti na doméně.} Z tohoto důvodu musí být všechny elementy konceptualizace (objekty a relace) \textit{explicitně} definovány. Toho může být dosaženo dvěma způsoby. Jedním z nich je definování elementu pomocí výčtu všech možných hodnot. Tento přístup může být vhodný pro některé elementy, zatímco pro jiné může být vysoce neefektivní. Zatímco definice pohlaví člověka pomocí výčtu hodnot je velice triviální - muž/žena\footnote{Při výkladu dle zákonů České Republiky.}, tak definice automobilu je značně problematická - bylo by zapotřebí sestavit seznam všech vyrobených automobilů. Alternativním způsobem definování elementů konceptualizace je definice pomocí axiomů - významových postulátů.\cite{ontologiee05} Budeme-li se držet příkladu s automobilem, můžeme automobil definovat jako stroj se čtyřmi koly poháněný motorem. U relací konceptualizace takto můžeme například definovat zda jsou symetrické, reflexivní a/nebo transitivní. Ontologie je souborem takovýchto axiomů a výčtových definic. Dle definice musí být jazyk popisující konceptualizace také \textit{formální} - tedy strojově zpracovatelný. Nemůže se tedy jednat například o přirozený jazyk.\cite{ontologief06}
+
+		Při dodržení výše zmíněných konceptů je ontologie formální, explicitní specifikací konceptualizace, což je v souladu například s definicí ontologie podle Grubera\cite{ontologie01}. S postupem času se ale ukázalo, že sdílení ontologií (nebo alespoň jejich částní, například významových postulátů) je jedním ze základních požadavků a přínosů tohoto přístupu ke zpracování dat. Ontologie jsou sice formální a explicitní specifikací - tedy jazyk popisující ontologii je jednoznačný a strojově čitelný, pokud jsou ale stejné objekty reálného světa definovány v různých ontologiích různě, je kombinace těchto ontologií komplikovaná. Z toho důvodu je žádoucí například používání standardizovaných významových postulátů pro základní entity. Pro pochopení konceptu sdílených ontologií je také důležité znát motivaci, která vede k jejich vytváření. Ta může být následující:\cite{ontologieg07}
+\begin{itemize}
+\item{Sdílení obecného porozumnění a struktury informací mezi lidmi nebo softwarovými agenty je jedním z "vyšších cílů" tvorby ontologií. Například pokud několik organizací používá a publikuje jednotnou základní ontologii, je možné znalosti těchto organizací jednoduše strojově kombinovat, analyzovat a porovnávat.}
+\item{Umožnění znovupoužitelnosti znalosti domény. Mnoho doménových modelů (v našem kontextu konceptualizací) sdílí stejné části. Díky možnosti kombinace mnoha ontologií do jedné globální je možné tento problém elegantně vyřešit. Nejen, že je ušetřen čas, který by byl stráven modelováním části domény, jejíž konceptualizace již existuje, navíc tento přístup přináší jednotný pohled na danou část domény v rámci různých modelů.}
+\item{Explicitní definice doménových znalostí a předpokladů může sloužit jako základ implementace aplikací. Pokud jsou doménové předpoklady definovány například ve zdrojovém kódu aplikace, je velice obtížné je dohledat či změnit. Především pro uživatele bez programovacích schopností. Explicitní definice těchto předpokladů může být také užitečná pro nové uživatele seznamující se s doménou.}
+\item{Oddělení doménových znalostí od operativních. Například definice parametrů produktu může být oddělená od algoritmu, který parametry produktu přiděluje. Stejně tak tento algoritmus může být nezávislý na produktu samotném. Pokud změníme ontologii, může stejný algoritmus nastavovat parametry naprosto rozdílných produktů.}
+\end{itemize}  
+
+		\subsection{Formální reprezentace}
+		Ontologie musí být pro účely automatického zpracování definovány formálně. Již byly naznačeny požadavky na formální jazyk, kterým by měla být ontologie definována. Existuje několik (skupin) formálních jazyků, které jsou pro tyto účely více či méně vhodné, mezi nimi například:\cite{ontologieh08}
+\begin{itemize}
+\item{Rámcově orientované modely. Tento koncept využívá struktury rámců jako entit domény a slotů jako jejich vlastností. Podstatnou vlastností konceptu je možnost dědičnosti rámců. Příkladem implementace rámcově orientovaného modelu je například Open Knowledge Base Connectivity.\cite{okbc01}}
+\item{Sémantické sítě jsou grafem, kde vrcholy reprezentují entity domény a hrany relace mezi nimi. Relace mezi entitami mohou být následující: je synonymum, je antonymum, je součástí (a inverzní relace), je typem (a inverzní relace). Sémantické sítě byly vytvořeny za záměrem překladu přirozených jazyků, typickým příkladem je WordNet.\cite{wordnet01} }
+\item{Konceptuální grafy jsou rozšířením sémantické sítě. Skládají se z tříd, relací, individuí a kvantifikátorů. Oproti sémantickým sítím mají přímý překlad do predikátové logiky, jejíž sémantiku využívají. Díky tomu je vyjadřovací schopnost konceptuálních grafů teoreticky stejná jako vyjadřovací schoponost predikátové logiky.\cite{semgraf01}}
+\item{Knowledge Interchange Format (KIF) je jazykem sémanticky založeným na predikátové logice a syntakticky na programovacím jazyce LISP\cite{lisp01}. Jeho zamýšleným cílem měly být především transformace a integrace ontologií, je ale také často využíván pro přímou specifikaci ontologií.\cite{ontologiei09}} 
+\item{Common Logic je frameworkem pro rodinu ontologických jazyků založených na logice s cílem standardizace syntaxe a sémantiky ontologických jazyků. Do skupiny patří tři jazyky: CLIF (Common Logic Interchange Format), CGIF - Conceptual Graph Interchange Format a XCL /eXtended Common Logic Markup Language), všechny tři standardizované ISO normou \cite{comlog01}. Díky standardizaci jsou jazyky mezi sebou navzájem jednoduše přeložitelné.}
+\item{Deskriptivní logika je logika sloužící primárně pro formální popis konceptů a rolí (relací). Různé implementace deskriptivní logiky vznikly za účelem formalizace sémantických sítí a rámcově orientovaných modelů. Sémanticky jsou založeny na predikátové logice, zatímco syntaxe je uzpůsobená pro potřeby praktického modelování a výpočetní efektivitu.\cite{deslog01}}
+\end{itemize}
+
+		Tato kapitola dále popisuje právě formální specifikaci ontologie pomocí deskriptivní logiky, protože právě ta je využívána frameworkem Semantic Big Data Historian.
+
+		Jazyky založené na deskriptivní logice se skládají ze dvou komponent - \textit{TBox}ů a \textit{ABox}ů. Tboxy popisují terminologii - tedy koncepty a role (relace) ontologie, zatímco ABoxy definují přiřazení jednotlivých instancí. Koncepty popisují množinu instancí a rozle popisují vztahy mezi těmito instancemi. 
+		Sémantika těchto jazyků odpovídá sémantice predikátové logiky, zatímco syntaxe je odlišná. Je nicméně přimo mapovatelná na syntaxi predikátové logiky - koncepty odpovídají unárním predikátům a role binárním predikátům.\cite{deslogb02}
+
+		Jedním z hlavních důvodů pro nutnost formální specifikace ontologie je možnost dedukce znalostí - tedy vyvozování informací, které nejsou ontologií explicitně definovány. Formální reprezentace ontologie pomocí deskriptivní logiky je koncipována s ohledem na možnost automatického zpracování. Z důvodů výpočetní náročnosti nebo například úrovně detailu ontologie ovšem není dedukce možná vždy. Příkladem dedukce znalostí mohou být:\cite{ontologieh08}
+\begin{itemize}
+\item{určení splnitelnosti konceptu (Může existovat indiviuum, které může být instancí daného konceptu?),}
+\item{určení podmnožin konceptů (Je jeden koncet podmnožinou druhého?),}
+\item{určení konzistence ontologie (Neporušují instance ABox specifikaci definovanou v TBox?), }
+\item{určení všech konceptů individua (Kterých všech konceptů je individuum instancí?),}
+\item{určení všech instancí konceptu.}
+\end{itemize}
+
+		\subsection{Sémantický web} % TODO RDF + RDFS + OWL + SPARQL
+	
+\chapter{Experimentální část}
+	Cílem experimentální části práce je navrhnout způsob transformace dotazů pro analýzu velkého objemu sémanticky popsaných senzorických dat a následně implementovat komponentu pro analýzu dat. 
+ 
+	V následujících kapitolách jsou popsána analyzovaná data, architektura Semantic Big Data Historianu a samotná analytická komponenta.
+
+	\section{Analyzovaná data}
+		Dataset pro analýzu je uložen pomocí platformy Semantic Big Data Historian - platforma je určena pro integraci dat různorodých datových zdrojů z oblasti průmyslové automatizace za využití Big Data technologií. Typickými datovými zdroji jsou:
+\begin{itemize}
+\item senzory snímající informace o aktuálním stavu strojů,
+\item ERP\footnote{Enterprise Resource Planning} systémy,
+\item MES\footnote{Manufacturng Execution Systems} systémy,
+\item další systémy z vyšší úrovně řízení,
+\item externí datové zdroje.
+\end{itemize}
+		Semantic Big Data Historian data z výše uvedených zdrojů transformuje a ukládá ve formátu klíč-hodnota do indexovaných HDFS souborů. Uložená data jsou popsána sdílenou SHS ontologií. Proces integrace heterogenních dat je popsán v \cite{historian01}.
+
+		Pro účely této práce jsou používána data z vodní elektrárny. 
+
+	\section{Popis architektury}
+		Jak bylo uvedeno, analyzovaná data jsou uložena na Hadoop serveru, konkrétně v HDFS. Data jsou dotazována Hivem pomocí HiveQL\footnote{Hive Query Language - dialekt jazyka SQL}\cite{hiveql01} a výsledná analýza je prováděna pomocí KNIME workflow, přičemž KNIME workflow je připojeno na Hive pomocí ODBC konektoru. Při dotazování dat Hivem dochází k filtrování velkého objemu dat tak, aby data analyzovaná pomocí KNIME workflow byla o akceptovatelné velikosti a aby bylo možné data efektnivně analzyzovat. Primárním úkolem analytické komponenty je zjednodušit pro uživatele výslednou analýzu.
+
+        \section{Základní funkce analytické komponenty}
+		Z architektury současného řešení Semantic Big Data Historianu vyplývají základní funkční požadavky na analytickou komponentu:
+\begin{itemize}
+\item načtení metadat z Hivu,
+\item načtení KNIME workflow,
+\item úprava KNIME workflow,
+\item spuštění KNIME workflow,
+\item uložení výsledků analýzy.
+\end{itemize}
+
+		\subsection{Načtení KNIME workflow}
+		KNIME workflow jsou definována pomocí XML souborů, přičemž vlastní XML nastavení má každá komponenta (uzel) ve workflow. I samotné workflow má vlastní XML nastavení, kde jsou definovány jeho základní atributy, namapovány jednotlivé uzly workflow a jejich propojení. Načtení informací o workflow a jednotlivých uzlech je důležité pro další funkce analytické komponenty.
+
+		Zjednodušená struktura XML nastavení workflow je následující: 
+
+\begin{itemize}
+\item základních atributů workflow (verze KNIME, se kterou je workflow kompatibilní, název workflow, informace o jeho autorovi), 
+\item definice uzlů, ze kterých je workflow složeno,
+\item definice propojení jednotlivých uzlů,
+\item atributy pro vykreslení workflow v KNIME.
+\end{itemize}
+
+\lstset{language=XML}
+\begin{lstlisting}
+<config>
+ <!--basic workflow attributes-->
+ <config key="workflow_credentials"/>
+  <config key="nodes">
+   <config key="node_1">
+    <!--basic node attributes-->
+    <config key="ui_settings">
+     <config key="extrainfo.node.bounds">
+      <!--attributes of processed data-->
+     </config>
+    </config>
+   </config>
+   <!--more nodes-->
+  </config>
+  <config key="connections">
+   <config key="connection_0">
+    <!--edge definition-->
+   </config>
+   <!--more edges-->
+  </config>
+  <config key="workflow_editor_settings">
+   <!--knime editor attributes-->
+  </config>
+ </config>
+\end{lstlisting}
+
+		Struktura XML nastavení jednotlivých uzlů se odvíjí od typu uzlu, vzhledem k velkému množství typů uzlů zde není uvedena. Pro účely načtení workflow není podstatná, lze vyjít z informací o uzlech uvedených v nastavení workflow samotného.
+		
+		\subsection{Úprava KNIME workflow} \label{sec:knimeEdit}
+		V případě, že chce uživatel měnit nastavení některého z uzlů workflow nebo workflow samotného, je z XML souboru vytvořen DOM Dokument, který je následně možné prohlédávat a upravovat pomocí XPath. Díky tomuto univerzálnímu přístupu může uživatel měnit hodnotu libovolného atributu uzlu nebo workflow. 
+
+		Pokud se uživatel rozhodne provedené změny uložit, je nejprve vytvořena záloha původního nastavení\footnote{Zálohovaný soubor je uložen do složky "./backup"}, uživatel tedy může provedené změny jednoduše vrátit. Zálohována je pouze poslední verze souboru, pokud existuje starší záloha, je přepsána. V opačném případě by objem adresáře se zálohami narůstal a bylo by nutné jej udržovat, ať už manuálně, nebo automaticky.  
+
+		\subsection{Načtení metadat z Hivu}
+		Vzhledem k úkolu analytické komponenty zjednodušit analýzu dat je žádoucí, aby uživatel mohl při změně nastavení workflow vycházet pouze z informací, které mu komponenta poskytuje. Nejinak je tomu při výběru zdroje dat. Analytická komponenta dotazuje Hive o metadata - názvy databází, názvy a strukturu tabulek, které Hive obsahuje tak, aby mohl uživatel jednoduše vybrat, nad kterou tabulkou bude analýza spuštěna. 
+
+		Při dotazování dat Hivem dochází k významné filtraci dat, což umožňuje rychlejší analýzu pomocí KNIME workflow. Pro zjednodušení této filtrace umožňuje analytická komponenta změnit HiveQL dotaz, pomocí kterého jsou data filtrována. Při načtení metadat tabulky je sestaven \textit{select} příkaz dotazující všechna data zvolené tabulky s explicitním seznamem všech sloupců tabulky. Tento příkaz je možné upravit tak, aby byla filtrována pouze potřebná data a analýza tak byla efektivnější. Upravený příkaz je potom do KNIME workflow uložen způsobem popsaným v \ref{sec:knimeEdit}.
+
+		Komunikace komponenty s Hive serverem je možná několika způsoby. Jako první byla testována komunikace pomocí příkazové řádky operačního systému\footnote{Předpokládá se, že Hive server běží na UNIXovém operačním systému, příkazovou řádkou je míněna některá z interpretací příkazé řádky UNIXu, například BASH. Při reálném použití by příkaz byl realizován pomocí SSH, protože Hive server běží na jiném zařízení než analytická komponenta. Jak je popsáno dále, tento přístup ale nebyl zvolen.}. Tento způsob řešení je sice funkční, nicméně časová náročnost komunikace skrz příkazovou řádku je neuměrně velká i pro velice rychle vykonatelné dotazy. Například dotaz na názvy všech databází v tomto případě trvá více než dvě vteřiny.  Z toho důvodu bylo toto řešení nahrazeno připojením pomocí ODBC konektoru. V tomto případě je časová náročnost na komunikaci s Hive serverem zanedbatelná. Připojení pomocí ODBC konektoru nicméně vyžaduje běh služby \textit{hiveserver2}.
+
+		\subsection{Spuštení KNIME workflow}
+		Samotné spuštění KNIME workflow je implementováno pomocí příkazové řádky operačního systému, workflow je spouštěno v \textit{batch módu}\footnote{org.knime.product.KNIME\_BATCH\_APPLICATION - mód aplikace KNIME pro spouštění workflow pomocí příkazové řádky.}. Přestože ani v tomto případě není využití příkazové řádky operačního systému příliš efektivní\footnote{Jedinou zpětnou vazbou o výsledku průběhu workflow jsou logy aplikace KNIME, ve kterých je nutné potřebné informace dohledávat.}, architektura aplikace KNIME neumožňuje jinou alternativu\footnote{Tedy za předpokladu, že není žádoucí otevírat grafické rozhraní aplikace - což není, analytická komponenta by tímto přišla o výhody, které přináší z hlediska jednoduchosti spouštění analýz.}
+
+		\subsection{Uložení výsledků analýzy}
+		Jednou z nevýhod spouštění workflow pomocí batch módu je, že KNIME po úspěšném vykonání workflow nevrátí výsledek analýzy. Výsledky tedy musí být získány jiným způsobem, než přímo pomocí analytické komponenty, protože takové řešení by bylo implementačně velice náročné. Tento problém je možné řešit na úrovni samotného workflow pomocí uzlů exportujících výsledek do souboru (například CSV). Je ovšem třeba brát ohled na to, že workflow může být rozvětvené, potom výsledná data z každé větve workflow musí být exportována samostatně. Z tohoto důvodu je zavedena následovná jmenná konvence uzlů pro export dat "export\_x.y", kde "x" je název výsledného exportovaného souboru a "y" je jeho přípona. Díky této konvenci je možné jednoduše měnit cílové umístění pro exportované soubory.
+		 
+	\section{Rozšiřující funkce analytické komponenty}
+		\subsection{Sestavení nového KNIME workflow z existujících bloků workflow}
+		\subsection{Určení časové náročnosti vykonání KNIME workflow}
+
+	\section{Implementace} % TODO
+		
+
+\chapter{Závěr}
+		
+
+
+\bibliographystyle{csplainnat}
+
+{
+\bibliography{reference}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% vše co následuje bude uvedeno v přílohách
+\appendix	
+
+\printnomenclature
+\label{apx:zkratky}
+
+\chapter{Obsah přiloženého CD}
+% TODO
+%\textbf{\large Tato příloha je povinná pro každou práci. Každá práce musí totiž obsahovat přiložené CD. Viz dále.}
+
+
+\end{document}
