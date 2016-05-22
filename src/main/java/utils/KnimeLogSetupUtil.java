@@ -1,4 +1,4 @@
-package Utils;
+package utils;
 
 import DAO.DaoFactory;
 import model.KnimeNode;

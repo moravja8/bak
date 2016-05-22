@@ -1,5 +1,5 @@
 import GUI.MainFrame;
-import Utils.KnimeLogSetupUtil;
+import utils.KnimeLogSetupUtil;
 import dbConnectors.H2Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
