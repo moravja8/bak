@@ -1,10 +1,8 @@
 package DAO.Impl;
 
-import DAO.DaoFactory;
 import DAO.KnimeNodeDao;
 import com.sun.org.apache.xpath.internal.NodeSet;
 import model.KnimeNode;
-import org.apache.hadoop.security.authorize.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -25,7 +23,9 @@ import java.io.IOException;
 import java.util.HashMap;
 
 /**
- * Created by cloudera on 5/2/16.
+ * Implementuje {@link KnimeNodeDao}
+ *
+ * @author moravja8@fel.cvut.cz
  */
 public class KnimeNodeDaoImpl implements KnimeNodeDao {
     private static Logger log = LoggerFactory.getLogger(KnimeNodeDaoImpl.class);

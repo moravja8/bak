@@ -6,8 +6,9 @@ import services.Impl.KnimeWorkflowServiceImpl;
 import services.Impl.PropertiesServiceImpl;
 
 /**
- * not thread safe
- * Created by cloudera on 3/29/16.
+ * Třída implementuje návrhový vzor Factory, poskytuje implementace služeb.
+ * Třída není thread-safe.
+ * @author moravja8@fel.cvut.cz
  */
 public class ServiceFactory {
 
@@ -16,6 +17,9 @@ public class ServiceFactory {
     private static KnimeCostsMapperService knimeCostsMapperService = null;
     private static PropertiesService propertiesService = null;
 
+    /**
+     * @return instanci implementace {@link KnimeNodeService}
+     */
     public static KnimeNodeService getKnimeNodeService() {
         if(knimeNodeService == null){
             knimeNodeService = new KnimeNodeServiceImpl();
@@ -23,6 +27,9 @@ public class ServiceFactory {
         return knimeNodeService;
     }
 
+    /**
+     * @return instanci implementace {@link KnimeWorkflowService}
+     */
     public static KnimeWorkflowService getKnimeWorkflowService() {
         if(knimeWorkflowService == null){
             knimeWorkflowService = new KnimeWorkflowServiceImpl();
@@ -30,6 +37,9 @@ public class ServiceFactory {
         return knimeWorkflowService;
     }
 
+    /**
+     * @return instanci implementace {@link KnimeCostsMapperService}
+     */
     public static KnimeCostsMapperService getKnimeCostsMapperService() {
         if(knimeCostsMapperService == null){
             knimeCostsMapperService = new KnimeLogCostsMapperService();
@@ -37,6 +47,9 @@ public class ServiceFactory {
         return knimeCostsMapperService;
     }
 
+    /**
+     * @return instanci implementace {@link PropertiesService}
+     */
     public static PropertiesService getPropertiesService() {
         if(propertiesService == null){
             propertiesService = new PropertiesServiceImpl();

@@ -8,11 +8,18 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
- * Created by cloudera on 3/28/16.
+ * Třída pro spouštení příkazů pomocí Bash. Tato třída je využívána především při spouštění KNIME workflow.
+ * @author moravja8@fel.cvut.cz
  */
 public class ShellUtil {
     private static Logger log = LoggerFactory.getLogger(ShellUtil.class);
 
+    /**
+     * Metoda spouští nový proces na úrovni operačního systému a čte logy, které jsou procesem vráceny.
+     * Metado je ukončena po ukončení procesu.
+     * @param command bash příkaz, který má být spuštěn
+     * @return log vygenerovaný procesem
+     */
     public static ArrayList<String> executeCommand(String command) {
 
         log.info("Executing command: "+ command +"");

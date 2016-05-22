@@ -5,8 +5,9 @@ import java.sql.ResultSet;
 import java.text.MessageFormat;
 
 /**
- * Singleton, not thread safe
- * Created by cloudera on 4/10/16.
+ * Implementuje {@link DbConnector}.
+ *
+ * @author moravja8@fel.cvut.cz
  */
 public class HiveConnector extends DbConnector{
 
@@ -39,9 +40,9 @@ public class HiveConnector extends DbConnector{
     }
 
     /**
-     * This method returns only SQL, not result of a SQL command!
-     * @param tableName - name of queried table
-     * @return basic query for retrieving data from table
+     * Generuje transformační dotaz pro sémanticky uložená data.
+     * @param tableName název tabulky, pro kterou je vytvořen transformační dotaz
+     * @return transformační dotazs
      */
     public String getBasicSelectSQL(String tableName) {
 

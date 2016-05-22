@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Created by cloudera on 5/2/16.
+ * Třída implementuje {@link PropertiesService}
+ * @author moravja8@fel.cvut.cz
  */
 public class PropertiesServiceImpl implements PropertiesService {
 

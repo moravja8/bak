@@ -6,7 +6,9 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.sql.ResultSet;
 
 /**
- * Created by cloudera on 4/11/16.
+ * Implementuje {@link DbConnector}.
+ *
+ * @author moravja8@fel.cvut.cz
  */
 public class H2Connector extends DbConnector{
     private static H2Connector instance;

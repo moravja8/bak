@@ -19,7 +19,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * Created by cloudera on 4/10/16.
+ * Hlavní obrazovka grafického rozhraní aplikace.
+ * @author moravja8@fel.cvut.cz
  */
 public class MainFrame {
     private Logger log = LoggerFactory.getLogger(MainFrame.class);
@@ -47,13 +48,16 @@ public class MainFrame {
 
     private GridBagConstraints gridBagConstraints = new GridBagConstraints();
 
+    /**
+     * Vytvoří a zobrazí obrazovku.
+     */
     public void init() {
         JFrame frame = new JFrame("Analytic component");
 
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
-        frame.setSize(640, 480);
+        frame.setSize(660, 480);
         frame.setResizable(false);
         frame.setVisible(true);
 
@@ -68,7 +72,7 @@ public class MainFrame {
         leftBar = new JPanel();
         leftBar.setLayout(new GridBagLayout());
         leftBar.setBorder(BorderFactory.createTitledBorder("Input"));
-        leftBar.setMinimumSize(new Dimension(350, 480));
+        leftBar.setMinimumSize(new Dimension(370, 480));
         leftBar.setMaximumSize(new Dimension(350, 480));
 
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;

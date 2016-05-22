@@ -4,12 +4,17 @@ import DAO.Impl.KnimeNodeDaoImpl;
 import DAO.Impl.PropertiesDaoImpl;
 
 /**
- * Created by cloudera on 5/2/16.
+ * Třída implementuje návrhový vzor Factory, poskytuje implementace DAO vrstvy.
+ * Třída není thread-safe.
+ * @author moravja8@fel.cvut.cz
  */
 public class DaoFactory {
     private static PropertiesDao propertiesDao = null;
     private static KnimeNodeDao knimeNodeDao = null;
 
+    /**
+     * @return instanci implementace {@link PropertiesDao}
+     */
     public static PropertiesDao getPropertiesDao() {
         if(propertiesDao == null){
             propertiesDao = new PropertiesDaoImpl();
@@ -17,6 +22,9 @@ public class DaoFactory {
         return propertiesDao;
     }
 
+    /**
+     * @return instanci impolementace {@link KnimeNodeDao}
+     */
     public static KnimeNodeDao getKnimeNodeDao() {
         if(knimeNodeDao == null){
             knimeNodeDao = new KnimeNodeDaoImpl();

@@ -8,7 +8,9 @@ import java.io.*;
 import java.util.Properties;
 
 /**
- * Created by cloudera on 3/28/16.
+ * Implementuje {@link PropertiesDao}.
+ *
+ * @author moravja8@fel.cvut.cz
  */
 public class PropertiesDaoImpl implements PropertiesDao{
     private static Logger log = LoggerFactory.getLogger(PropertiesDaoImpl.class);

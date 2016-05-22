@@ -3,10 +3,15 @@ package services;
 import java.util.ArrayList;
 
 /**
- * Created by cloudera on 5/2/16.
+ * Rozhraní pro služby poskytující metody pro práci s properties souborem.
+ * @author moravja8@fel.cvut.cz
  */
 public interface PropertiesService {
 
+    /**
+     * Metoda vrací seznam všech parametrů definovaných v properties soubory
+     * @return seznam všech parametrů
+     */
     ArrayList<String> getPropertiesList();
 
 

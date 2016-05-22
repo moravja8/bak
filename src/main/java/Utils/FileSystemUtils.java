@@ -6,11 +6,20 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by cloudera on 4/6/16.
+ * Třída pro práce se souborovým systémem operačního systému, na které je aplikace spouštěna.
+ *
+ * @author moravja8@fel.cvut.cz
  */
 public class FileSystemUtils {
     private static Logger log = LoggerFactory.getLogger(FileSystemUtils.class);
 
+    /**
+     * Metoda vytvoří novou složku. Cílová cesta složky je difinována absolutně, pokud některé z adresářů
+     * definovaných v absolutní cestě neexistují, automaticky se vytvoří. Pokud nelze vytvořit složku s definovaným
+     * názvem, proběhne několik pokusů o vytvoření složky s podobným, upraveným názvem.
+     * @param folderAbsolutePath cílová cesta složky definovaná absolutně
+     * @return vytvořenou složku
+     */
     public static File createFolder(String folderAbsolutePath){
         File folder = new File(folderAbsolutePath);
 
@@ -38,6 +47,12 @@ public class FileSystemUtils {
         return folder;
     }
 
+    /**
+     * Metoda přesune soubor v souborovém systému.
+     * @param sourceFile zrojový soubor
+     * @param resultFile cílový soubor
+     * @throws IOException v případě, že přesunutí souboru neproběhne
+     */
     public static void moveFileSilently(File sourceFile, File resultFile) throws IOException {
         try{
             if(sourceFile.renameTo(resultFile)){

@@ -15,9 +15,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Singleton
- * Not threadsafe
- * Created by cloudera on 3/28/16.
+ * Třída implementuje {@link KnimeWorkflowService}
+ * @author moravja8@fel.cvut.cz
  */
 public class KnimeWorkflowServiceImpl implements KnimeWorkflowService {
     private static Logger log = LoggerFactory.getLogger(KnimeWorkflowServiceImpl.class);

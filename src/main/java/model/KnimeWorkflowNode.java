@@ -10,7 +10,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Created by cloudera on 3/29/16.
+ * Třída implementující model takového uzlu KNIME workflow, který představuje celé workflow (metanode). Alternativně
+ * může třída představovat implementaci modelu samotného KNIME workflow, které je strukturou téměř shodné se
+ * strukturou jednotlivých uzlů.
+ * @author moravja8@fel.cvut.cz
  */
 public class KnimeWorkflowNode extends KnimeNode{
 
@@ -24,10 +27,18 @@ public class KnimeWorkflowNode extends KnimeNode{
 
     private ArrayList<KnimeWriterNode> writers = null;
 
+    /**
+     * Uzel je vytvořen na základě jeho nastavení, definovaného pomocí XML souboru.
+     * @param root adresář, kterým je uzel definován obsahující mimo jiné XML nastavení uzlu
+     * @throws IOException v případě, že není nalezeno nastavení uzlu
+     */
     public KnimeWorkflowNode(File root) throws IOException {
         super(root, "workflow.knime");
     }
 
+    /**
+     * @return seznam všech uzlů, které workflow/metanode zahrnuje
+     */
     public ArrayList<KnimeNode> getNodes() {
         if(nodes == null){
             ServiceFactory.getKnimeWorkflowService().loadNodes(this);
@@ -35,6 +46,11 @@ public class KnimeWorkflowNode extends KnimeNode{
         return nodes;
     }
 
+    /**
+     * @return uzel třídy {@link KnimeSqlExecutorNode}, který definuje SQL (HiveQL) příkaz, který bude spuštěn
+     * databázovým serverem. Hledaný uzel musí mít název 'sql_executor'.
+     * @throws NullPointerException, pokud takový uzel není nalezen.
+     */
     public KnimeSqlExecutorNode getSqlExecutor() throws NullPointerException{
         if (sqlExecutor == null) {
             ServiceFactory.getKnimeWorkflowService().loadNodes(this);
@@ -42,6 +58,9 @@ public class KnimeWorkflowNode extends KnimeNode{
         return sqlExecutor;
     }
 
+    /**
+     * @return název workflow / metanodu
+     */
     public String getWorkflowName(){
         return super.getNodeRoot().getName();
     }

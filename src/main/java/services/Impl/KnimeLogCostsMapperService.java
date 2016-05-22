@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * Created by cloudera on 4/11/16.
+ * Třída implementuje {@link KnimeCostsMapperService}.
+ * @author moravja8@fel.cvut.cz
  */
 public class KnimeLogCostsMapperService implements KnimeCostsMapperService {
     private static Logger log = LoggerFactory.getLogger(KnimeLogCostsMapperService.class);
@@ -42,7 +43,6 @@ public class KnimeLogCostsMapperService implements KnimeCostsMapperService {
             return null;
         }
 
-
         ArrayList<String[]> costmap = new ArrayList<String[]>();
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
         Date now = new Date();
@@ -66,7 +66,6 @@ public class KnimeLogCostsMapperService implements KnimeCostsMapperService {
                 costmap.add(new String[]{strDate, db, table, wf, nodeName, nodeNbr, duration});
             }
         }
-
         return costmap;
     }
 
@@ -87,5 +86,4 @@ public class KnimeLogCostsMapperService implements KnimeCostsMapperService {
         }
         return output;
     }
-
 }

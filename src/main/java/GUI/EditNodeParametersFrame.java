@@ -13,7 +13,8 @@ import java.awt.event.WindowEvent;
 import java.util.HashMap;
 
 /**
- * Created by cloudera on 5/2/16.
+ * Obrazovka grafického rozhraní aplikace pro změnu parametrů KNIME uzlu.
+ * @author moravja8@fel.cvut.cz
  */
 class EditNodeParametersFrame {
     private static Logger log = LoggerFactory.getLogger(EditNodeParametersFrame.class);
@@ -32,6 +33,9 @@ class EditNodeParametersFrame {
         this.workflow = workflow;
     }
 
+    /**
+     * Vytvoří a zobrazí obrazovku.
+     */
     void init(){
         JFrame frame = new JFrame("Edit node parameters");
 

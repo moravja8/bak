@@ -13,7 +13,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 
 /**
- * Created by cloudera on 5/2/16.
+ * Obrazovka grafického rozhraní aplikace pro nastavení parametrů aplikace.
+ * @author moravja8@fel.cvut.cz
  */
 class ApplicationSettingsFrame {
     private static Logger log = LoggerFactory.getLogger(ApplicationSettingsFrame.class);
@@ -25,6 +26,9 @@ class ApplicationSettingsFrame {
 
     private GridBagConstraints gridBagConstraints = new GridBagConstraints();
 
+    /**
+     * Vytvoří a zobrazí obrazovku.
+     */
     void init(){
         JFrame frame = new JFrame("Configure application");
 

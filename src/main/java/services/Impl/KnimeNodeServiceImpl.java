@@ -13,7 +13,8 @@ import java.io.IOException;
 
 
 /**
- * Created by cloudera on 3/29/16.
+ * Třída implementuje {@link KnimeNodeService}
+ * @author moravja8@fel.cvut.cz
  */
 public class KnimeNodeServiceImpl implements KnimeNodeService {
     private static Logger log = LoggerFactory.getLogger(KnimeNodeServiceImpl.class);

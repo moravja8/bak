@@ -12,15 +12,14 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Created by moravja8 on 4/11/16.
+ * Nastavení log4j loggeru aplikace KNIME musí být upraveno pro účely této aplikace. Při vyhodnocování rychlosti uzlů
+ * jsou používány informace, které KNIME poskytuje, tyto informace jsou přístupné bohužel pomocí logů aplikace.
+ * Toho může být docíleno přidáním uzlu 'batchexec' do nastavení.
+ * Cesta ke konfiguračnímuj souboru log4j je definována staticky, tento přístup ale není bezdůvodný.
+ * Je předpoklad, že pokud bude soubor přesunut nebo přejmenová, bude to v důsledku vydání nové verze KNIME (případně
+ * log4j) a v tom případě musí být zkontrolováno, zda se nezměnila také struktura souboru.
  *
- * Settings of Knime log4j logger needs to be updated for purposes of this application. Costs evaluator gets information
- * about time of execution of each node of Knime workflow from Knime's console log, which however, in default settings,
- * does not log all information to stdout in case of batch application.
- * This problem can be fixed by adding a 'batchexec' node reference to 'root' element of the settings.
- * Path to log4j settings file is defined statically, but there is a reason for that. There is a premise, that if the name
- * of the file changes, it would be because of a new version of log4j and in that case the structure of xml file needs to be
- * checked also, whether it has changed.
+ * @author moravja8@fel.cvut.cz
  */
 public class KnimeLogSetupUtil {
     private static File knimeLogSettingsFile = null;
@@ -28,8 +27,8 @@ public class KnimeLogSetupUtil {
     private static Document parsedSettings = null;
 
     /**
-     * Setup locates and loads the log4j setting file. If the file is not found, it fires NullPointerException.
-     * @throws NullPointerException
+     * Metoda vyhledá a načte konfigurační soubor log4j. Pokud soubor není nalezen, vrátí NullPointerException.
+     * @throws NullPointerException v případě, že hledaný konfigurační soubor neexistuje.
      */
     private static void setUp() throws NullPointerException{
         StringBuilder logFilePath = new StringBuilder();
@@ -50,7 +49,8 @@ public class KnimeLogSetupUtil {
     }
 
     /**
-     * Adds node appender-ref[@ref='batchexec'] to root node, backups old settings and saves new settings.
+     * Metoda přidá uzel appender-ref[@ref='batchexec'] no kořene konfiguračního souboru,
+     * vytvoří zálohu původního nastavení a uloží nové nastavení.
      */
     public static void addBatchExecutorLogger() throws IOException {
         try {
